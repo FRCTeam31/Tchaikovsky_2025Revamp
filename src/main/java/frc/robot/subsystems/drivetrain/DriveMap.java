@@ -5,6 +5,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.MomentOfInertia;
 import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleConfig;
 import prime.control.PrimePIDConstants;
 
@@ -34,7 +35,7 @@ public class DriveMap {
   public static final String LimelightFrontName = "limelight-front";
   public static final RobotConfig PathPlannerRobotConfiguration = new RobotConfig(
     Units.lbsToKilograms(120),
-    6, // TODO???
+    MomentOfInertia.ofBaseUnits(6, edu.wpi.first.units.Units.KilogramSquareMeters).baseUnitMagnitude(), // TODO???
     new ModuleConfig(
       Units.inchesToMeters(4),
       MaxSpeedMetersPerSecond,
