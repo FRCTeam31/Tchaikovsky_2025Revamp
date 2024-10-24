@@ -1,0 +1,85 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.8,
+      "y": 4.6
+    },
+    "rotation": -60.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Score_In_Speaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SpSource-A3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A3-SpSource"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eject_Note"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop_Shooter_And_Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SpSource-M4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "M4-SpSource"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eject_Note"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop_Shooter_And_Intake"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Source-Side",
+  "choreoAuto": false
+}

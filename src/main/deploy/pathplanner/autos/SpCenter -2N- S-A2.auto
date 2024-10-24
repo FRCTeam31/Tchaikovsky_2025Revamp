@@ -1,0 +1,61 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3,
+      "y": 5.5
+    },
+    "rotation": 0.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Score_In_Speaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SpCenter-A2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A2-SpCenter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eject_Note"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop_Shooter_And_Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SpCenter-ParkAtA2"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Center",
+  "choreoAuto": false
+}

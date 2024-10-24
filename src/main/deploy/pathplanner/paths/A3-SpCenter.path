@@ -1,0 +1,82 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.4645829471839122,
+        "y": 4.400478710867333
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.0131542515337277,
+        "y": 4.811138562997848
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.35,
+        "y": 5.5
+      },
+      "prevControl": {
+        "x": 2.2143780431967155,
+        "y": 4.528995057458811
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Speaker Center"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "Prepare to Shoot",
+      "waypointRelativePos": 0.0,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Stop_Note_Intake"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Set_Intake_In"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Start_Shooting"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 1.75,
+    "maxAcceleration": 1.75,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 360.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.08066959478685368,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "Center Auto Paths",
+  "previewStartingState": {
+    "rotation": -40.12822556926528,
+    "velocity": 0
+  },
+  "useDefaultConstraints": false
+}

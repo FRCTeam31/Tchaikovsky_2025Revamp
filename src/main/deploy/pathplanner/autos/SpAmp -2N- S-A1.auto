@@ -1,0 +1,55 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.82,
+      "y": 6.48
+    },
+    "rotation": 60.0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Score_In_Speaker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SpAmp-A1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "A1-SpAmp"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Eject_Note"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop_Shooter_And_Intake"
+          }
+        }
+      ]
+    }
+  },
+  "folder": "Amp-Side",
+  "choreoAuto": false
+}

@@ -1,0 +1,105 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.83,
+        "y": 2.37
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.821165496204866,
+        "y": 0.13640465713363947
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.8,
+        "y": 4.6
+      },
+      "prevControl": {
+        "x": 2.6024981979693687,
+        "y": 2.1964628713041203
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Speaker Source-Side"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "New Constraints Zone",
+      "minWaypointRelativePos": 0.65,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 3.0,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 180.0,
+        "maxAngularAcceleration": 360.0
+      }
+    }
+  ],
+  "eventMarkers": [
+    {
+      "name": "Prepare to Shoot",
+      "waypointRelativePos": 0.05,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Stop_Note_Intake"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Set_Intake_In"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Run Shooter Up to Speed",
+      "waypointRelativePos": 0.65,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Start_Shooting"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 540.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -59.01296980266918,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "Source Side Auto Paths",
+  "previewStartingState": {
+    "rotation": 19.776299750891862,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

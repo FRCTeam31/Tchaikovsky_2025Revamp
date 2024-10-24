@@ -1,0 +1,93 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.82,
+        "y": 7.45
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.035772287400431,
+        "y": 7.440755296825909
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.82,
+        "y": 6.48
+      },
+      "prevControl": {
+        "x": 1.886698428171631,
+        "y": 6.933527380568275
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Speaker Amp-Side"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "Prepare to Shoot",
+      "waypointRelativePos": 0.05,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Stop_Note_Intake"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Set_Intake_In"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Run Shooter Up to Speed",
+      "waypointRelativePos": 0.6,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Start_Shooting"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 540.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 60.67619189974157,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "Amp Side Auto Paths",
+  "previewStartingState": {
+    "rotation": -1.190783827497893,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}

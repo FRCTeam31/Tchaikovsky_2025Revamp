@@ -1,0 +1,87 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.82,
+        "y": 6.48
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.5025359776845675,
+        "y": 7.1733527380568285
+      },
+      "isLocked": false,
+      "linkedName": "Speaker Amp-Side"
+    },
+    {
+      "anchor": {
+        "x": 7.82,
+        "y": 7.45
+      },
+      "prevControl": {
+        "x": 5.265728008933495,
+        "y": 7.441986055143282
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
+    {
+      "name": "Set Intake Out",
+      "waypointRelativePos": 0.55,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Set_Intake_Out"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Intake Note",
+      "waypointRelativePos": 0.9,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Start_Note_Intake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 360.0,
+    "maxAngularAcceleration": 540.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.11435317127614646,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "Amp Side Auto Paths",
+  "previewStartingState": {
+    "rotation": 60.3619986852921,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
