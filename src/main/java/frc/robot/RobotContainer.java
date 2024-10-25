@@ -7,6 +7,10 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -16,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.drivetrain.DriveMap;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
@@ -24,11 +29,13 @@ import prime.control.Controls;
 import prime.control.HolonomicControlStyle;
 import prime.control.PrimeXboxController;
 
+@Logged(strategy = Strategy.OPT_IN)
 public class RobotContainer {
 
   private PrimeXboxController m_driverController;
   private PrimeXboxController m_operatorController;
 
+  @Logged(name = "Drivetrain", importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
   public Shooter Shooter;
   public Intake Intake;
@@ -60,7 +67,7 @@ public class RobotContainer {
       NamedCommands.registerCommands(Drivetrain.getNamedCommands());
       NamedCommands.registerCommands(Intake.getNamedCommands());
       NamedCommands.registerCommands(Shooter.getNamedCommands());
-      NamedCommands.registerCommands(m_combinedCommands.getNamedCommands()); // Register the combined named commands that use multiple subsystems
+      NamedCommands.registerCommands(m_combinedCommands.getNamedCommands(Shooter, Intake)); // Register the combined named commands that use multiple subsystems
 
       // Create Auto chooser and Auto tab in Shuffleboard
       configAutonomousDashboardItems();
@@ -165,63 +172,10 @@ public class RobotContainer {
     // Combined shooter and intake commands ===========
     m_operatorController // score in speaker
       .b()
-      .onTrue(m_combinedCommands.scoreInSpeakerSequentialGroup());
+      .onTrue(m_combinedCommands.scoreInSpeakerSequentialGroup(Shooter, Intake));
 
     m_operatorController // Run sequence to load a note into the shooter for scoring in the amp
       .y()
-      .onTrue(m_combinedCommands.loadNoteForAmp());
-  }
-
-  public class CombinedCommands {
-
-    /**
-     * Runs a sequence to score a note in the speaker
-     * @return
-     */
-    public SequentialCommandGroup scoreInSpeakerSequentialGroup() {
-      return Shooter
-        .startShootingNoteCommand()
-        .andThen(new WaitCommand(0.75))
-        .andThen(Intake.ejectNoteCommand())
-        .andThen(new WaitCommand(0.75))
-        .andThen(Shooter.stopMotorsCommand())
-        .andThen(Intake.stopRollersCommand());
-    }
-
-    /**
-     * Runs a sequence to load a note into the shooter for scoring in the amp
-     * @return
-     */
-    public SequentialCommandGroup loadNoteForAmp() {
-      return Commands
-        .runOnce(() -> Intake.runIntakeRollers(-0.7)) // Eject from the intake
-        .alongWith(Commands.runOnce(() -> Shooter.runShooter(0.1))) // Load into the shooter
-        .andThen(new WaitUntilCommand(Shooter::isNoteLoaded).withTimeout(1)) // Wait until the note is loaded
-        .andThen(new WaitCommand(0.045)) // Give the note time to get into the shooter
-        .andThen(stopShooterAndIntakeCommand()); // Stop both the shooter and intake
-    }
-
-    /**
-     * Runs a sequence to stop both the shooter and intake
-     * @return
-     */
-    public SequentialCommandGroup stopShooterAndIntakeCommand() {
-      return Shooter.stopMotorsCommand().andThen(Intake.stopRollersCommand());
-    }
-
-    /**
-     * Returns a map of named commands that use multiple subsystems
-     * @return
-     */
-    public Map<String, Command> getNamedCommands() {
-      return Map.of(
-        "Score_In_Speaker",
-        scoreInSpeakerSequentialGroup(),
-        "Load_Note_For_Amp",
-        loadNoteForAmp(),
-        "Stop_Shooter_And_Intake",
-        stopShooterAndIntakeCommand()
-      );
-    }
+      .onTrue(m_combinedCommands.loadNoteForAmp(Shooter, Intake));
   }
 }

@@ -5,7 +5,9 @@ import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -50,8 +52,9 @@ public class Shooter extends SubsystemBase {
     setName("Shooter");
 
     m_talonFX = new TalonFX(VMap.TalonFXCanID);
-    m_talonFX.getConfigurator().apply(new TalonFXConfiguration());
-    m_talonFX.setInverted(true);
+    var talonConfig = new TalonFXConfiguration();
+    talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    m_talonFX.getConfigurator().apply(talonConfig);
     m_talonFX.setNeutralMode(NeutralModeValue.Brake);
 
     m_victorSPX = new VictorSPX(VMap.VictorSPXCanID);

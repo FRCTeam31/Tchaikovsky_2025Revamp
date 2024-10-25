@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
@@ -12,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 import prime.control.PrimePIDConstants;
-import prime.movers.LazyCANSparkMax;
 
 public class Intake extends SubsystemBase {
 
@@ -33,9 +34,9 @@ public class Intake extends SubsystemBase {
   private DigitalInput m_topLimitSwitch;
   private DigitalInput m_bottomLimitSwitch;
 
-  private LazyCANSparkMax m_rollers;
-  private LazyCANSparkMax m_angleLeft;
-  private LazyCANSparkMax m_angleRight;
+  private CANSparkMax m_rollers;
+  private CANSparkMax m_angleLeft;
+  private CANSparkMax m_angleRight;
 
   private PIDController m_anglePid;
   private double m_angleStartPoint;
@@ -51,18 +52,18 @@ public class Intake extends SubsystemBase {
     m_topLimitSwitch = new DigitalInput(VMap.TopLimitSwitchChannel);
     m_bottomLimitSwitch = new DigitalInput(VMap.BottomLimitSwitchChannel);
 
-    m_rollers = new LazyCANSparkMax(VMap.RollersCanId, MotorType.kBrushless);
+    m_rollers = new CANSparkMax(VMap.RollersCanId, MotorType.kBrushless);
     m_rollers.restoreFactoryDefaults();
     m_rollers.setInverted(VMap.RollersInverted);
     m_rollers.setSmartCurrentLimit(40, 50);
     // m_rollers.setOpenLoopRampRate(0.250);
 
-    m_angleLeft = new LazyCANSparkMax(VMap.NeoLeftCanId, MotorType.kBrushless);
+    m_angleLeft = new CANSparkMax(VMap.NeoLeftCanId, MotorType.kBrushless);
     m_angleLeft.restoreFactoryDefaults();
     m_angleLeft.setInverted(VMap.NeoLeftInverted);
     m_angleLeft.setSmartCurrentLimit(40, 60);
 
-    m_angleRight = new LazyCANSparkMax(VMap.NeoRightCanId, MotorType.kBrushless);
+    m_angleRight = new CANSparkMax(VMap.NeoRightCanId, MotorType.kBrushless);
     m_angleRight.restoreFactoryDefaults();
     m_angleRight.setInverted(VMap.NeoRightInverted);
     m_angleRight.setSmartCurrentLimit(40, 60);

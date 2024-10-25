@@ -8,32 +8,36 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.subsystems.drivetrain.DriveMap;
 import prime.control.PrimePIDConstants;
-import prime.movers.LazyCANSparkMax;
 import prime.utilities.CTREConverter;
 
+@Logged(strategy = Strategy.OPT_IN)
 public class SwerveModuleIOReal implements ISwerveModuleIO {
 
   private SwerveModuleConfig m_map;
   private SwerveModuleIOInputs m_inputs;
 
   // Devices
-  private LazyCANSparkMax m_SteeringMotor;
+  private CANSparkMax m_SteeringMotor;
   private TalonFX m_driveMotor;
   private CANcoder m_encoder;
   private PIDController m_steeringPidController;
 
   // CTRE Velocity/volts descriptor.
   // Starts at velocity 0, no feed forward. Uses PID slot 0.
-  private final VelocityVoltage m_voltageVelocity = new VelocityVoltage(0, 0, false, 0, 0, false, false, false);
+  private final VelocityVoltage m_voltageVelocity = new VelocityVoltage(0, 0, false, 0, 0, false, false, false, false);
 
   public SwerveModuleIOReal(SwerveModuleConfig moduleMap) {
     m_map = moduleMap;
@@ -80,7 +84,7 @@ public class SwerveModuleIOReal implements ISwerveModuleIO {
    * Configures the steering motor and PID controller
    */
   private void setupSteeringMotor(PrimePIDConstants pid) {
-    m_SteeringMotor = new LazyCANSparkMax(m_map.SteeringMotorCanId, MotorType.kBrushless);
+    m_SteeringMotor = new CANSparkMax(m_map.SteeringMotorCanId, MotorType.kBrushless);
     m_SteeringMotor.restoreFactoryDefaults();
 
     m_SteeringMotor.setSmartCurrentLimit(100, 80);
@@ -118,11 +122,13 @@ public class SwerveModuleIOReal implements ISwerveModuleIO {
 
     // Set the ramp rates
     driveMotorConfig.withClosedLoopRamps(m_map.DriveClosedLoopRampConfiguration);
+    driveMotorConfig.MotorOutput.Inverted = m_map.DriveInverted 
+      ? InvertedValue.Clockwise_Positive 
+      : InvertedValue.CounterClockwise_Positive; // Clockwise Inversion
 
     // Apply the configuration
     m_driveMotor.getConfigurator().apply(driveMotorConfig);
     m_driveMotor.setNeutralMode(NeutralModeValue.Brake);
-    m_driveMotor.setInverted(m_map.DriveInverted); // Clockwise Inversion
   }
 
   /**

@@ -4,6 +4,9 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.PathPlannerLogging;
+
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,13 +25,13 @@ import frc.robot.Robot;
 import frc.robot.subsystems.DriverDashboard;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.PwmLEDs;
-import frc.robot.subsystems.drivetrain.IDrivetrainIO.*;
 import java.util.Map;
+import prime.control.SwerveControlSuppliers;
 import prime.control.LEDs.Color;
 import prime.control.LEDs.Patterns.PulsePattern;
 import prime.control.LEDs.Patterns.SolidPattern;
-import prime.control.SwerveControlSuppliers;
 
+@Logged(strategy = Strategy.OPT_IN)
 public class DrivetrainSubsystem extends SubsystemBase {
 
   private PwmLEDs m_leds;
@@ -52,13 +55,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   // IO and swerve modules
   private IDrivetrainIO m_driveio;
+  @Logged(name = "DriveInputs", importance = Logged.Importance.CRITICAL)
   private DrivetrainIOInputs m_inputs;
+  @Logged(name = "DriveOutputs", importance = Logged.Importance.CRITICAL)
   private DrivetrainIOOutputs m_outputs;
 
   // Vision, Kinematics, odometry
   public Limelight LimelightRear;
   public Limelight LimelightFront;
+  @Logged(name = "FrontPoseEstimationEnabled", importance = Logged.Importance.CRITICAL)
   public boolean EnableContinuousPoseEstimationFront = true;
+  @Logged(name = "RearPoseEstimationEnabled", importance = Logged.Importance.CRITICAL)
   public boolean EnableContinuousPoseEstimationRear = true;
 
   /**
@@ -129,12 +136,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * @param desiredChassisSpeeds The desired speeds of the robot
    */
   private void driveRobotRelative(ChassisSpeeds desiredChassisSpeeds) {
-    m_outputs.ControlMode = DriveControlMode.kRobotRelative;
+    m_outputs.ControlMode = DrivetrainControlMode.kRobotRelative;
     m_outputs.DesiredChassisSpeeds = desiredChassisSpeeds;
   }
 
   private void drivePathPlanner(ChassisSpeeds pathSpeeds) {
-    m_outputs.ControlMode = DriveControlMode.kPathFollowing;
+    m_outputs.ControlMode = DrivetrainControlMode.kPathFollowing;
     m_outputs.DesiredChassisSpeeds = pathSpeeds;
   }
 

@@ -3,6 +3,8 @@ package frc.robot.subsystems.drivetrain.swervemodule;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Current;
 
 public class SwerveModuleConfig {
 
@@ -20,9 +22,7 @@ public class SwerveModuleConfig {
     .withDutyCycleClosedLoopRampPeriod(0.5);
   public CurrentLimitsConfigs DriveCurrentLimitConfiguration = new CurrentLimitsConfigs()
     .withSupplyCurrentLimitEnable(true)
-    .withSupplyCurrentLimit(40)
-    .withSupplyCurrentThreshold(50)
-    .withSupplyTimeThreshold(100);
+    .withSupplyCurrentLimit(Current.ofBaseUnits(40, Units.Amp));
 
   public SwerveModuleConfig(
     int driveMotorCanId,
