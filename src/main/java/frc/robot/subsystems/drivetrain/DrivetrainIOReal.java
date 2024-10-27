@@ -33,6 +33,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   private SwerveDrivePoseEstimator m_poseEstimator;
 
   private ISwerveModuleIO m_frontLeftModule, m_frontRightModule, m_rearLeftModule, m_rearRightModule;
+
   @Logged(name = "FrontLeftInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_frontLeftInputs;
   @Logged(name = "FrontRightInputs", importance = Logged.Importance.CRITICAL)
@@ -41,6 +42,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   private SwerveModuleIOInputs m_rearLeftInputs;
   @Logged(name = "RearRightInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_rearRightInputs;
+  
   @Logged(name = "FrontLeftOutputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOOutputs m_frontLeftOutputs;
   @Logged(name = "FrontRightOutputs", importance = Logged.Importance.CRITICAL)

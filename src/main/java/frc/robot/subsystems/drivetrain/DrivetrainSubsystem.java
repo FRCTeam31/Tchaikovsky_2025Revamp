@@ -77,7 +77,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_driverDashboard = driverDashboard;
 
     // Create IO
-    m_driveio = isReal ? new DrivetrainIOReal() : new DrivetrainIOSim();
+    m_driveio = isReal 
+      ? new DrivetrainIOReal() 
+      : new DrivetrainIOSim();
     m_inputs = m_driveio.getInputs();
     m_outputs = new DrivetrainIOOutputs();
 
