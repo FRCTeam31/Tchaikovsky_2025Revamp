@@ -29,16 +29,14 @@ public class Robot extends TimedRobot {
   private RobotContainer m_robotContainer;
   private Command m_autonomousCommand;
 
-  @Override
-  public void robotInit() {
-    // Start L2 logging
+  public Robot() {
+    super();
+
+    // Configure logging
     DataLogManager.start();
+    DataLogManager.logConsoleOutput(true);
+    DataLogManager.logNetworkTables(true);
     DriverStation.startDataLog(DataLogManager.getLog());
-
-    // Initialize the robot container
-    m_robotContainer = new RobotContainer(isReal());
-
-    DataLogManager.start();
     Epilogue.configure(config -> {
       if (isSimulation()) {
         // If running in simulation, then we'd want to re-throw any errors that
@@ -53,6 +51,9 @@ public class Robot extends TimedRobot {
       // config.minimumImportance = Logged.Importance.CRITICAL;
     });
     Epilogue.bind(this);
+
+    // Initialize the robot container
+    m_robotContainer = new RobotContainer(isReal());
   }
 
   @Override

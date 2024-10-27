@@ -35,7 +35,7 @@ public class DriveMap {
   public static final String LimelightFrontName = "limelight-front";
   public static final RobotConfig PathPlannerRobotConfiguration = new RobotConfig(
     Units.lbsToKilograms(120),
-    MomentOfInertia.ofBaseUnits(6, edu.wpi.first.units.Units.KilogramSquareMeters).baseUnitMagnitude(), // TODO???
+    MomentOfInertia.ofBaseUnits(6, edu.wpi.first.units.Units.KilogramSquareMeters).baseUnitMagnitude(), // TODO: measure, maybe???
     new ModuleConfig(
       Units.inchesToMeters(4),
       MaxSpeedMetersPerSecond,
