@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.drivetrain.DriveMap;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.vision.VisionSubsystem;
+
 import java.util.Map;
 import prime.control.Controls;
 import prime.control.HolonomicControlStyle;
@@ -35,6 +37,7 @@ public class RobotContainer {
   private PrimeXboxController m_driverController;
   private PrimeXboxController m_operatorController;
 
+  public VisionSubsystem Vision;
   @Logged(name = "Drivetrain", importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
   public Shooter Shooter;
@@ -54,7 +57,11 @@ public class RobotContainer {
       // Create new subsystems
       LEDs = new PwmLEDs();
       DriverDashboard = new DriverDashboard();
-      Drivetrain = new DrivetrainSubsystem(isReal, LEDs, DriverDashboard);
+      Vision = new VisionSubsystem(new String[] {
+        DriveMap.LimelightFrontName,
+        DriveMap.LimelightRearName
+      });
+      Drivetrain = new DrivetrainSubsystem(isReal, LEDs, DriverDashboard, Vision);
       Shooter = new Shooter(LEDs);
       Intake = new Intake();
       Climbers = new Climbers(DriverDashboard);

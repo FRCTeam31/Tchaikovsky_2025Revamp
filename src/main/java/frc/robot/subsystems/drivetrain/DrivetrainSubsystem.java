@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -23,8 +22,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.DriverDashboard;
-import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.PwmLEDs;
+import frc.robot.subsystems.vision.VisionSubsystem;
+
 import java.util.Map;
 import prime.control.SwerveControlSuppliers;
 import prime.control.LEDs.Color;
@@ -61,17 +61,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private DrivetrainIOOutputs m_outputs;
 
   // Vision, Kinematics, odometry
-  public Limelight LimelightRear;
-  public Limelight LimelightFront;
-  @Logged(name = "FrontPoseEstimationEnabled", importance = Logged.Importance.CRITICAL)
-  public boolean EnableContinuousPoseEstimationFront = true;
-  @Logged(name = "RearPoseEstimationEnabled", importance = Logged.Importance.CRITICAL)
-  public boolean EnableContinuousPoseEstimationRear = true;
+  public VisionSubsystem m_vision;
+  @Logged(name = "FrontVisionPoseEstimationEnabled", importance = Logged.Importance.CRITICAL)
+  public boolean EstimatePoseUsingFrontCamera = true;
+  @Logged(name = "RearVisionPoseEstimationEnabled", importance = Logged.Importance.CRITICAL)
+  public boolean EstimatePoseUsingRearCamera = true;
 
   /**
    * Creates a new Drivetrain.
    */
-  public DrivetrainSubsystem(boolean isReal, PwmLEDs leds, DriverDashboard driverDashboard) {
+  public DrivetrainSubsystem(boolean isReal, PwmLEDs leds, DriverDashboard driverDashboard, VisionSubsystem vision) {
     setName("Drivetrain");
     m_leds = leds;
     m_driverDashboard = driverDashboard;
@@ -83,9 +82,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_inputs = m_driveio.getInputs();
     m_outputs = new DrivetrainIOOutputs();
 
-    LimelightRear = new Limelight(DriveMap.LimelightRearName);
-    LimelightFront = new Limelight(DriveMap.LimelightFrontName);
+    m_vision = vision;
 
+    configurePathPlanner();
+  }
+
+  private void configurePathPlanner() {
     // ==================================== PATHPLANNER 2025 ====================================
     // Load the RobotConfig from the GUI settings, or use the default if an exception occurs
     RobotConfig config = DriveMap.PathPlannerRobotConfiguration;
@@ -97,11 +99,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     // Set up PP to feed current path poses to the field widget
-    PathPlannerLogging.setLogCurrentPoseCallback(pose -> driverDashboard.FieldWidget.setRobotPose(pose));
+    PathPlannerLogging.setLogCurrentPoseCallback(pose -> m_driverDashboard.FieldWidget.setRobotPose(pose));
     PathPlannerLogging.setLogTargetPoseCallback(pose ->
-      driverDashboard.FieldWidget.getObject("target pose").setPose(pose)
+      m_driverDashboard.FieldWidget.getObject("target pose").setPose(pose)
     );
-    PathPlannerLogging.setLogActivePathCallback(poses -> driverDashboard.FieldWidget.getObject("path").setPoses(poses));
+    PathPlannerLogging.setLogActivePathCallback(poses -> m_driverDashboard.FieldWidget.getObject("path").setPoses(poses));
 
     // Configure PathPlanner holonomic control
     AutoBuilder.configure(
@@ -207,37 +209,37 @@ public class DrivetrainSubsystem extends SubsystemBase {
       currentSpeeds.vyMetersPerSecond < 2;
     SmartDashboard.putBoolean("Drive/PoseEstimation/WithinTrustedVelocity", withinTrustedVelocity);
 
-    EnableContinuousPoseEstimationRear = m_driverDashboard.RearPoseEstimationSwitch.getBoolean(false);
-    SmartDashboard.putBoolean("Drive/PoseEstimation/RearEstimationEnabled", EnableContinuousPoseEstimationRear);
-    if (EnableContinuousPoseEstimationRear) {
-      // Rear Limelight
+    EstimatePoseUsingFrontCamera = m_driverDashboard.FrontPoseEstimationSwitch.getBoolean(false);
+    SmartDashboard.putBoolean("Drive/PoseEstimation/FrontEstimationEnabled", EstimatePoseUsingFrontCamera);
+    if (EstimatePoseUsingFrontCamera) {
+      // Front Limelight
       // If we have a valid target and we're moving in a trusted velocity range, update the pose estimator
-      var primaryTarget = LimelightRear.getApriltagId();
-      var isValidTarget = LimelightRear.isValidApriltag(primaryTarget);
-      SmartDashboard.putBoolean("Drive/PoseEstimation/Rear/IsValidTarget", isValidTarget);
+      var frontInputs = m_vision.getLimelightInputs(0);
+      var frontIsValidTarget = m_vision.isValidApriltag(frontInputs.ApriltagId);
+      m_driverDashboard.FrontApTagIdField.setDouble(frontInputs.ApriltagId);
+      SmartDashboard.putBoolean("Drive/PoseEstimation/Front/IsValidTarget", frontIsValidTarget);
 
-      m_driverDashboard.RearApTagIdField.setDouble(primaryTarget);
-      m_driverDashboard.RearApTagOffsetDial.setDouble(LimelightRear.getHorizontalOffsetFromTarget().getDegrees());
-
-      if (isValidTarget && withinTrustedVelocity) {
-        var llPose = LimelightRear.getRobotPose(Alliance.Blue);
+      if (frontIsValidTarget && withinTrustedVelocity) {
+        var llPose = frontInputs.BlueAllianceOriginFieldSpaceRobotPose;
 
         m_driveio.addPoseEstimatorVisionMeasurement(llPose.Pose.toPose2d(), llPose.Timestamp, llPose.StdDeviations);
       }
     }
 
-    EnableContinuousPoseEstimationFront = m_driverDashboard.FrontPoseEstimationSwitch.getBoolean(false);
-    SmartDashboard.putBoolean("Drive/PoseEstimation/FrontEstimationEnabled", EnableContinuousPoseEstimationFront);
-    if (EnableContinuousPoseEstimationFront) {
-      // Front Limelight
+    EstimatePoseUsingRearCamera = m_driverDashboard.RearPoseEstimationSwitch.getBoolean(false);
+    SmartDashboard.putBoolean("Drive/PoseEstimation/RearEstimationEnabled", EstimatePoseUsingRearCamera);
+    if (EstimatePoseUsingRearCamera) {
+      // Rear Limelight
       // If we have a valid target and we're moving in a trusted velocity range, update the pose estimator
-      var frontPrimaryTarget = LimelightFront.getApriltagId();
-      var frontIsValidTarget = LimelightFront.isValidApriltag(frontPrimaryTarget);
-      m_driverDashboard.FrontApTagIdField.setDouble(frontPrimaryTarget);
-      SmartDashboard.putBoolean("Drive/PoseEstimation/Front/IsValidTarget", frontIsValidTarget);
+      var rearInputs = m_vision.getLimelightInputs(1);
+      var isValidTarget = m_vision.isValidApriltag(rearInputs.ApriltagId);
+      SmartDashboard.putBoolean("Drive/PoseEstimation/Rear/IsValidTarget", isValidTarget);
 
-      if (frontIsValidTarget && withinTrustedVelocity) {
-        var llPose = LimelightFront.getRobotPose(Alliance.Blue);
+      m_driverDashboard.RearApTagIdField.setDouble(rearInputs.ApriltagId);
+      m_driverDashboard.RearApTagOffsetDial.setDouble(rearInputs.TargetHorizontalOffset.getDegrees());
+
+      if (isValidTarget && withinTrustedVelocity) {
+        var llPose = rearInputs.BlueAllianceOriginFieldSpaceRobotPose;
 
         m_driveio.addPoseEstimatorVisionMeasurement(llPose.Pose.toPose2d(), llPose.Timestamp, llPose.StdDeviations);
       }
@@ -335,12 +337,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   public Command enableLockOn() {
     return Commands.run(() -> {
-      var targetedAprilTag = LimelightRear.getApriltagId();
+      var rearLimelightInputs = m_vision.getLimelightInputs(1);
 
-      // If targetedAprilTag is in validTargets, snap to its offset
-      if (LimelightRear.isSpeakerCenterTarget(targetedAprilTag)) {
+      // If targeted AprilTag is in validTargets, snap to its offset
+      if (m_vision.isSpeakerCenterTarget(rearLimelightInputs.ApriltagId)) {
         // Calculate the target heading
-        var horizontalOffsetDeg = LimelightRear.getHorizontalOffsetFromTarget().getDegrees();
+        var horizontalOffsetDeg = rearLimelightInputs.TargetHorizontalOffset.getDegrees();
         var robotHeadingDeg = getHeadingDegrees();
         var targetHeadingDeg = robotHeadingDeg - horizontalOffsetDeg;
 
