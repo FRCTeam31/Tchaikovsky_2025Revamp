@@ -21,7 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.subsystems.drivetrain.DriveMap;
 import prime.control.PrimePIDConstants;
-import prime.utilities.CTREConverter;
+import prime.util.CTREConverter;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class SwerveModuleIOReal implements ISwerveModuleIO {

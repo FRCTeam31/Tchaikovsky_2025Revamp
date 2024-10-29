@@ -4,14 +4,16 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.DriverDashboard;
 import prime.vision.LimelightInputs;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class VisionSubsystem extends SubsystemBase {
     private LimeLightNT[] m_limelights;
 
-    @Logged(name = "LimelightInputs", importance = Logged.Importance.CRITICAL)
+    @Logged(importance = Logged.Importance.CRITICAL)
     private LimelightInputs[] m_limelightInputs;
 
     public VisionSubsystem(String[] tableNames) {
@@ -28,10 +30,16 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * Gets the inputs for the specified limelight.
      * @param llIndex The index of the limelight to get inputs from.
-     * @return
      */
     public LimelightInputs getLimelightInputs(int llIndex) {
         return m_limelightInputs[llIndex];
+    }
+
+    /**
+     * Gets all limelight inputs
+     */
+    public LimelightInputs[] getAllLimelightInputs() {
+        return m_limelightInputs;
     }
 
     /**
@@ -110,13 +118,22 @@ public class VisionSubsystem extends SubsystemBase {
         for (int i = 0; i < m_limelights.length; i++) {
             m_limelightInputs[i] = m_limelights[i].getInputs();
         }
+
+        // Update Dashboard & logging
+        var frontInputs = getLimelightInputs(0);
+        var rearInputs = getLimelightInputs(1);
+        SmartDashboard.putBoolean("Drive/PoseEstimation/Front/IsValidTarget", isAprilTagIdValid(frontInputs.ApriltagId));
+        SmartDashboard.putBoolean("Drive/PoseEstimation/Rear/IsValidTarget", isAprilTagIdValid(rearInputs.ApriltagId));
+        DriverDashboard.FrontApTagIdField.setDouble(frontInputs.ApriltagId);
+        DriverDashboard.RearApTagIdField.setDouble(rearInputs.ApriltagId);
+        DriverDashboard.RearApTagOffsetDial.setDouble(rearInputs.TargetHorizontalOffset.getDegrees());
     }
 
-    public boolean isSpeakerCenterTarget(int apriltagId) {
+    public static boolean isAprilTagIdASpeakerCenterTarget(int apriltagId) {
         return apriltagId == 4 || apriltagId == 7;
     }
 
-    public boolean isValidApriltag(int apriltagId) {
+    public static boolean isAprilTagIdValid(int apriltagId) {
         return apriltagId >= 1 && apriltagId <= 16;
     }
 }

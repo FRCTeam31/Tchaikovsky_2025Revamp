@@ -4,7 +4,6 @@ import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.NotLogged;
-import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -15,7 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.struct.StructSerializable;
 import edu.wpi.first.wpilibj.Timer;
 
-@Logged(strategy = Strategy.OPT_OUT)
+@Logged
 public class LimelightPose implements StructSerializable {
 
   public Pose3d Pose = new Pose3d();

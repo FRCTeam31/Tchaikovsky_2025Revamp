@@ -16,55 +16,53 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.drivetrain.DriveMap;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
-import java.util.Map;
 import prime.control.Controls;
 import prime.control.HolonomicControlStyle;
 import prime.control.PrimeXboxController;
 
 @Logged(strategy = Strategy.OPT_IN)
-public class RobotContainer {
+public class Container {
 
   private PrimeXboxController m_driverController;
   private PrimeXboxController m_operatorController;
 
+  @Logged(importance = Importance.CRITICAL)
   public VisionSubsystem Vision;
-  @Logged(name = "Drivetrain", importance = Importance.CRITICAL)
+  @Logged(importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
   public Shooter Shooter;
   public Intake Intake;
   public Climbers Climbers;
   public PwmLEDs LEDs;
   public Compressor Compressor;
-  public DriverDashboard DriverDashboard;
 
   private CombinedCommands m_combinedCommands;
 
-  public RobotContainer(boolean isReal) {
+  public Container(boolean isReal) {
     try {
+      DriverDashboard.init();
       m_driverController = new PrimeXboxController(Controls.DRIVER_PORT);
       m_operatorController = new PrimeXboxController(Controls.OPERATOR_PORT);
 
       // Create new subsystems
       LEDs = new PwmLEDs();
-      DriverDashboard = new DriverDashboard();
       Vision = new VisionSubsystem(new String[] {
         DriveMap.LimelightFrontName,
         DriveMap.LimelightRearName
       });
-      Drivetrain = new DrivetrainSubsystem(isReal, LEDs, DriverDashboard, Vision);
+      Drivetrain = new DrivetrainSubsystem(isReal, 
+        LEDs::restorePersistentStripPattern, 
+        LEDs::setStripTemporaryPattern, 
+        Vision::getAllLimelightInputs);
       Shooter = new Shooter(LEDs);
       Intake = new Intake();
-      Climbers = new Climbers(DriverDashboard);
+      Climbers = new Climbers();
       Compressor = new Compressor(30, PneumaticsModuleType.REVPH);
       Compressor.enableDigital();
 

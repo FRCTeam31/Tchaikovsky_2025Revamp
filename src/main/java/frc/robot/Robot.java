@@ -26,7 +26,7 @@ import prime.control.LEDs.Patterns.PulsePattern;
 public class Robot extends TimedRobot {
 
   @Logged(name = "Robot/Container", importance = Importance.CRITICAL)
-  private RobotContainer m_robotContainer;
+  private Container m_robotContainer;
   private Command m_autonomousCommand;
 
   public Robot() {
@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
     Epilogue.bind(this);
 
     // Initialize the robot container
-    m_robotContainer = new RobotContainer(isReal());
+    m_robotContainer = new Container(isReal());
   }
 
   @Override
@@ -69,7 +69,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
 
-    m_robotContainer.DriverDashboard.AllianceBox.setBoolean(onRedAlliance());
+    DriverDashboard.AllianceBox.setBoolean(onRedAlliance());
   }
 
   /**
