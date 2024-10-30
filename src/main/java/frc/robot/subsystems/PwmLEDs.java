@@ -72,7 +72,7 @@ public class PwmLEDs extends SubsystemBase {
 
     public Command setBackgroundPattern(LEDPattern backgroundPattern) {
         if (!m_isRobotReal)
-            return runOnce(null);
+            return runOnce(() -> {});
 
         return runOnce(() -> {
             m_backgroundPattern = backgroundPattern;
@@ -81,7 +81,7 @@ public class PwmLEDs extends SubsystemBase {
 
     public Command setForegroundPattern(LEDPattern foregroundPattern) {
         if (!m_isRobotReal)
-            return runOnce(null);
+            return runOnce(() -> {});
 
         return runOnce(() -> {
             m_foregroundPattern = foregroundPattern;
@@ -90,7 +90,7 @@ public class PwmLEDs extends SubsystemBase {
 
     public Command clearForegroundPattern() {
         if (!m_isRobotReal)
-            return runOnce(null);
+            return runOnce(() -> {});
 
         return runOnce(() -> {
             m_foregroundPattern = null;

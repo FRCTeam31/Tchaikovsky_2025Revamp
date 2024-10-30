@@ -24,13 +24,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 @Logged(strategy = Strategy.OPT_IN)
 public class Robot extends TimedRobot {
 
-  @Logged(name = "Robot/Container", importance = Importance.CRITICAL)
+  @Logged(name = "Container", importance = Importance.CRITICAL)
   private Container m_robotContainer;
   private Command m_autonomousCommand;
 
   public Robot() {
-    super();
-
     // Configure logging
     DataLogManager.start();
     DataLogManager.logConsoleOutput(true);
@@ -89,9 +87,9 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
 
       // Stop the shooter and intake motors in case they're still running and set the intake IN
-      m_robotContainer.Shooter.stopMotorsCommand().schedule();
-      m_robotContainer.Intake.stopRollersCommand().schedule();
-      m_robotContainer.Intake.setIntakeInCommand().schedule();
+      // m_robotContainer.Shooter.stopMotorsCommand().schedule();
+      // m_robotContainer.Intake.stopRollersCommand().schedule();
+      // m_robotContainer.Intake.setIntakeInCommand().schedule();
     }
 
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
@@ -122,8 +120,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
 
       // Stop the shooter and intake motors in case they're still running
-      m_robotContainer.Shooter.stopMotorsCommand().schedule();
-      m_robotContainer.Intake.stopRollersCommand().schedule();
+      // m_robotContainer.Shooter.stopMotorsCommand().schedule();
+      // m_robotContainer.Intake.stopRollersCommand().schedule();
     }
 
     // Set teleop LED pattern

@@ -21,7 +21,7 @@ public class LimeLightNT implements AutoCloseable {
     private NetworkTable m_limelightTable;
     private ExecutorService m_executorService = Executors.newSingleThreadExecutor();
 
-    private LimelightInputs m_inputs;
+    private LimelightInputs m_inputs = new LimelightInputs();
 
     public LimeLightNT(NetworkTableInstance instance, String tableName) {
         m_limelightTable = instance.getTable(tableName);
