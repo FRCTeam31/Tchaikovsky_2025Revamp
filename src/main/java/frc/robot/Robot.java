@@ -9,18 +9,17 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import prime.control.LEDs.Color;
-import prime.control.LEDs.Patterns.BlinkPattern;
-import prime.control.LEDs.Patterns.ChasePattern;
-import prime.control.LEDs.Patterns.PulsePattern;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class Robot extends TimedRobot {
@@ -58,7 +57,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    m_robotContainer.LEDs.setStripPersistentPattern(new PulsePattern(onRedAlliance() ? Color.RED : Color.BLUE, 2));
+    var disabledPattern = LEDPattern.solid(onRedAlliance() ? Color.kRed : Color.kBlue)
+      .breathe(Units.Seconds.of(2.0));
+    m_robotContainer.LEDs.setBackgroundPattern(disabledPattern);
+    m_robotContainer.LEDs.clearForegroundPattern();
   }
 
   /**
@@ -77,7 +79,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_robotContainer.LEDs.setStripPersistentPattern(new BlinkPattern(onRedAlliance() ? Color.RED : Color.BLUE, 0.250));
+    var autoPattern = LEDPattern.solid(onRedAlliance() ? Color.kRed : Color.kBlue)
+      .blink(Units.Seconds.of(0.25));
+    m_robotContainer.LEDs.setBackgroundPattern(autoPattern);
+    m_robotContainer.LEDs.clearForegroundPattern();
 
     // Cancel any auto command that's still running and reset the subsystem states
     if (m_autonomousCommand != null) {
@@ -122,9 +127,10 @@ public class Robot extends TimedRobot {
     }
 
     // Set teleop LED pattern
-    m_robotContainer.LEDs.setStripPersistentPattern(
-      new ChasePattern(onRedAlliance() ? Color.RED : Color.BLUE, 0.5, false)
-    );
+    var telePattern = LEDPattern.solid(onRedAlliance() ? Color.kRed : Color.kBlue)
+      .scrollAtRelativeSpeed(Units.Hertz.of(2));
+    m_robotContainer.LEDs.setBackgroundPattern(telePattern);
+    m_robotContainer.LEDs.clearForegroundPattern();
 
     m_robotContainer.Drivetrain.EstimatePoseUsingFrontCamera = false;
     m_robotContainer.Drivetrain.EstimatePoseUsingRearCamera = false;

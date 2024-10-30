@@ -8,19 +8,20 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import java.util.Map;
-import prime.control.LEDs.Color;
-import prime.control.LEDs.Patterns.BlinkPattern;
-import prime.control.LEDs.Patterns.ChasePattern;
-import prime.control.LEDs.Patterns.SolidPattern;
+import java.util.function.Consumer;
 
 public class Shooter extends SubsystemBase {
 
@@ -35,11 +36,18 @@ public class Shooter extends SubsystemBase {
     public static final int ElevationSolenoidReverseChannel = 7;
   }
 
-  private PwmLEDs m_leds;
   private TalonFX m_talonFX;
   private VictorSPX m_victorSPX;
   private DoubleSolenoid m_elevationSolenoid;
   private DigitalInput m_noteDetector;
+
+  private Runnable m_clearForegroundPatternFunc;
+  private Consumer<LEDPattern> m_setForegroundPatternFunc;
+  private LEDPattern m_elevatorUpLEDPattern = LEDPattern.solid(Color.kWhite);
+  private LEDPattern m_shootingLEDPattern = LEDPattern.steps(Map.of(0.0, Color.kGreen, 0.10, Color.kBlack))
+    .scrollAtRelativeSpeed(Units.Hertz.of(4));
+  private LEDPattern m_noteDetectedLEDPattern = LEDPattern.solid(Color.kOrange)
+    .blink(Units.Seconds.of(0.2));
 
   // #endregion
 
@@ -47,8 +55,10 @@ public class Shooter extends SubsystemBase {
    * Creates a new Shooter with a given configuration
    * @param config
    */
-  public Shooter(PwmLEDs leds) {
-    m_leds = leds;
+  public Shooter(
+    Runnable restoreLEDPersistentPatternFunc,
+    Consumer<LEDPattern> setLEDTemporaryPatternFunc
+  ) {
     setName("Shooter");
 
     m_talonFX = new TalonFX(VMap.TalonFXCanID);
@@ -70,6 +80,9 @@ public class Shooter extends SubsystemBase {
       );
 
     m_noteDetector = new DigitalInput(VMap.NoteDetectorDIOChannel);
+
+    m_clearForegroundPatternFunc = restoreLEDPersistentPatternFunc;
+    m_setForegroundPatternFunc = setLEDTemporaryPatternFunc;
   }
 
   //#region Control Methods
@@ -93,7 +106,7 @@ public class Shooter extends SubsystemBase {
   public void stopMotors() {
     m_talonFX.stopMotor();
     m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
-    m_leds.restorePersistentStripPattern();
+    m_clearForegroundPatternFunc.run();
   }
 
   /**
@@ -110,12 +123,12 @@ public class Shooter extends SubsystemBase {
 
   public void setElevatorUp() {
     setElevator(Value.kForward);
-    m_leds.setStripTemporaryPattern(new SolidPattern(Color.WHITE));
+    m_setForegroundPatternFunc.accept(m_elevatorUpLEDPattern);
   }
 
   public void setElevatorDown() {
     setElevator(Value.kReverse);
-    m_leds.restorePersistentStripPattern();
+    m_clearForegroundPatternFunc.run();
   }
 
   //#endregion
@@ -127,9 +140,9 @@ public class Shooter extends SubsystemBase {
     var newNoteDetectedValue = isNoteLoaded();
     if (newNoteDetectedValue != m_lastNoteDetectedValue) {
       if (newNoteDetectedValue && !m_lastNoteDetectedValue) {
-        m_leds.setStripTemporaryPattern(new BlinkPattern(prime.control.LEDs.Color.ORANGE, 0.2));
+        m_setForegroundPatternFunc.accept(m_noteDetectedLEDPattern);
       } else {
-        m_leds.restorePersistentStripPattern();
+        m_clearForegroundPatternFunc.run();
       }
 
       // Save the new value
@@ -168,7 +181,7 @@ public class Shooter extends SubsystemBase {
   public Command startShootingNoteCommand() {
     return Commands.runOnce(() -> {
       runShooter(1);
-      m_leds.setStripTemporaryPattern(new ChasePattern(Color.GREEN, 0.25, isNoteLoaded()));
+      m_setForegroundPatternFunc.accept(m_shootingLEDPattern);
     });
   }
 

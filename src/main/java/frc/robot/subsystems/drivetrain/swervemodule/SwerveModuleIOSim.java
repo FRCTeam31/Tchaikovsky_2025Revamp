@@ -2,7 +2,7 @@ package frc.robot.subsystems.drivetrain.swervemodule;
 
 public class SwerveModuleIOSim implements ISwerveModuleIO {
 
-  private SwerveModuleIOInputs m_inputs;
+  private SwerveModuleIOInputs m_inputs = new SwerveModuleIOInputs();
 
   public SwerveModuleIOSim(SwerveModuleConfig moduleMap) {
   }

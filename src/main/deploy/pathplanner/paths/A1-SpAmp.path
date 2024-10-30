@@ -1,5 +1,5 @@
 {
-  "version": 1.0,
+  "version": "2025.0",
   "waypoints": [
     {
       "anchor": {
@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5493573329488999,
+        "x": 1.5493573329488997,
         "y": 7.06295322500555
       },
       "isLocked": false,
@@ -20,8 +20,8 @@
         "y": 6.48
       },
       "prevControl": {
-        "x": 0.9529834075884366,
-        "y": 6.609962769475088
+        "x": 0.9987956499722008,
+        "y": 6.654734414329343
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,10 +30,12 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
+  "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "Prepare to Shoot",
       "waypointRelativePos": 0.05,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
@@ -65,18 +67,19 @@
     "maxVelocity": 2.5,
     "maxAcceleration": 2.5,
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 360.0
+    "maxAngularAcceleration": 360.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 59.91669743559589,
-    "rotateFast": true
+    "rotation": 59.916697435595886
   },
   "reversed": false,
   "folder": "Amp Side Auto Paths",
-  "previewStartingState": {
-    "rotation": -0.2312113625636056,
-    "velocity": 0
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

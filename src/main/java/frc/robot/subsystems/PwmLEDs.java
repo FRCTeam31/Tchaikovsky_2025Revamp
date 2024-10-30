@@ -1,91 +1,126 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import prime.control.LEDs.Patterns.LEDPattern;
+
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Dimensionless;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PwmLEDs extends SubsystemBase {
+    public static class VMap {
 
-  public static class VMap {
-
-    public static final int PwmPort = 9;
-    public static final int PixelsPerStrip = 78;
-  }
-
-  private AddressableLED _led;
-  private AddressableLEDBuffer _ledBuffer;
-
-  private final ScheduledExecutorService _updateLoopExecutor = Executors.newScheduledThreadPool(1);
-  private LEDPattern _persistentPattern;
-  private LEDPattern _temporaryPattern;
-
-  public PwmLEDs() {
-    // Initialize the LED strip and buffer
-    _ledBuffer = new AddressableLEDBuffer(VMap.PixelsPerStrip);
-    _led = new AddressableLED(VMap.PwmPort);
-    _led.setLength(_ledBuffer.getLength());
-
-    // Set the strip to a default color and start the LED strip
-    for (var i = 0; i < _ledBuffer.getLength(); i++) {
-      _ledBuffer.setRGB(i, 100, 100, 100);
+        public static final int PwmPort = 9;
+        public static final int PixelsPerStrip = 78;
+        public static final double BackgroundDimAmount = 0.5;
     }
-    _led.setData(_ledBuffer);
-    _led.start();
 
-    // Start the pattern update loop at 142hz with a default pattern
-    _updateLoopExecutor.scheduleAtFixedRate(this::ledUpdateLoop, 0, 7, java.util.concurrent.TimeUnit.MILLISECONDS);
-  }
+    private boolean m_isRobotReal;
+    private AddressableLED m_led;
+    private AddressableLEDBuffer m_ledBuffer;
+    private byte _loopErrorCounter = 0;
 
-  /**
-   * Set the persistent pattern of the LED strip
-   */
-  public void setStripPersistentPattern(LEDPattern pattern) {
-    _persistentPattern = pattern;
-  }
+    private ScheduledExecutorService _updateLoopExecutor;
+    private LEDPattern m_backgroundPattern = LEDPattern.solid(Color.kGray);
+    private LEDPattern m_foregroundPattern = null;
 
-  /**
-   * Set the temporary pattern of the LED strip
-   */
-  public void setStripTemporaryPattern(LEDPattern pattern) {
-    _temporaryPattern = pattern;
-  }
+    private Alert m_loopStoppedAlert;
+    private Dimensionless m_backgroundDimAmount = Units.Percent.of(50);
 
-  /**
-   * Set the LED strip back to it's persistent pattern
-   */
-  public void restorePersistentStripPattern() {
-    _temporaryPattern = null;
-  }
+    public PwmLEDs(boolean isReal) {
+        m_isRobotReal = isReal;
+        if (m_isRobotReal) {
+            // Initialize the LED strip and buffer
+            m_ledBuffer = new AddressableLEDBuffer(VMap.PixelsPerStrip);
+            m_led = new AddressableLED(VMap.PwmPort);
+            m_led.setLength(m_ledBuffer.getLength());
+            m_led.start();
 
-  private byte _loopErrorCounter = 0;
+            // Apply a default pattern to the LED strip
+            m_backgroundPattern.applyTo(m_ledBuffer);
 
-  private void ledUpdateLoop() {
-    try {
-      // If the temporary pattern for this section is not null, use it instead of the persistent pattern
-      var pattern = _temporaryPattern != null ? _temporaryPattern : _persistentPattern;
+            // Setup the warning for when the loop stops
+            m_loopStoppedAlert = new Alert("[LEDs:ERROR] LED update loop failed.", Alert.AlertType.kWarning);
+            m_loopStoppedAlert.set(false);
 
-      // If the pattern is not null, update the LED strip
-      if (pattern != null) {
-        // Request for the pattern to calculate the next frame and update the buffer
-        pattern.updateBuffer(0, VMap.PixelsPerStrip, _ledBuffer);
-
-        // Update the LED strip with the new buffer
-        _led.setData(_ledBuffer);
-      }
-    } catch (Exception e) {
-      _loopErrorCounter++;
-      DriverStation.reportError("[LEDs:ERROR] Error in update loop: " + e.getMessage(), e.getStackTrace());
-
-      if (_loopErrorCounter > 3) {
-        var msg = "[LEDs:ERROR] LED update loop has failed 3 times. Stopping loop.";
-        DriverStation.reportError(msg, false);
-        System.out.println(msg);
-        _updateLoopExecutor.shutdown();
-      }
+            // _updateLoopExecutor = Executors.newScheduledThreadPool(1);
+            // // Start the pattern update loop at 200Hz with a 3ms delay to running at the same time as periodic functions
+            // _updateLoopExecutor.scheduleAtFixedRate(this::updateLedStrip, 3, 5, java.util.concurrent.TimeUnit.MILLISECONDS);
+        } else {
+            // initialize nothing
+        }
     }
-  }
+
+    @Override
+    public void periodic() {
+        if (!m_isRobotReal)
+            return;
+
+        /**
+         * TODO: Test at 20ms periodic update loop, then test with ScheduledExecutorService. 
+         * Determine if the pattern velocity is thrown off, or is simply rendered more smoothly.
+         */
+        updateLedStrip();
+    }
+
+    public Command setBackgroundPattern(LEDPattern backgroundPattern) {
+        if (!m_isRobotReal)
+            return runOnce(null);
+
+        return runOnce(() -> {
+            m_backgroundPattern = backgroundPattern;
+        });
+    }
+
+    public Command setForegroundPattern(LEDPattern foregroundPattern) {
+        if (!m_isRobotReal)
+            return runOnce(null);
+
+        return runOnce(() -> {
+            m_foregroundPattern = foregroundPattern;
+        });
+    }
+
+    public Command clearForegroundPattern() {
+        if (!m_isRobotReal)
+            return runOnce(null);
+
+        return runOnce(() -> {
+            m_foregroundPattern = null;
+        });
+    }
+
+    private void updateLedStrip() {
+        if (!m_isRobotReal || _loopErrorCounter > 3)
+            return;
+            
+        try {
+            if (m_foregroundPattern == null) {
+                m_backgroundPattern.applyTo(m_ledBuffer);
+            } else {
+                var dimmedBackground = m_backgroundPattern.atBrightness(m_backgroundDimAmount);
+                m_foregroundPattern.overlayOn(dimmedBackground).applyTo(m_ledBuffer);
+            }
+
+            m_led.setData(m_ledBuffer);
+        } catch (Exception e) {
+            _loopErrorCounter++;
+            DriverStation.reportError("[LEDs:ERROR] Failed to update LEDs: " + e.getMessage(), e.getStackTrace());
+
+            if (_loopErrorCounter > 3) {
+                var msg = "[LEDs:ERROR] LED update loop has failed 3 times. Stopping loop.";
+                DriverStation.reportError(msg, false);
+                System.out.println(msg);
+                m_loopStoppedAlert.set(true);
+                _updateLoopExecutor.shutdown();
+            }
+        }
+    }
 }

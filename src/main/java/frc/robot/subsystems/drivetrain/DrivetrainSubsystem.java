@@ -11,10 +11,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,17 +31,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import prime.control.SwerveControlSuppliers;
-import prime.control.LEDs.Color;
-import prime.control.LEDs.Patterns.LEDPattern;
-import prime.control.LEDs.Patterns.PulsePattern;
-import prime.control.LEDs.Patterns.SolidPattern;
 import prime.vision.LimelightInputs;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class DrivetrainSubsystem extends SubsystemBase {
 
-  private Runnable m_restoreLEDPersistentPatternFunc;
-  private Consumer<LEDPattern> m_setLEDTemporaryPatternFunc;
+  private Runnable m_clearForegroundPatternFunc;
+  private Consumer<LEDPattern> m_setForegroundPatternFunc;
 
   // Shuffleboard Drivetrain tab configuration
   private ShuffleboardTab d_drivetrainTab = Shuffleboard.getTab("Drivetrain");
@@ -73,18 +72,22 @@ public class DrivetrainSubsystem extends SubsystemBase {
   @Logged(importance = Logged.Importance.CRITICAL)
   public boolean WithinPoseEstimationVelocity = true;
 
+  private LEDPattern m_snapOnTargetPattern = LEDPattern.solid(Color.kGreen);
+  private LEDPattern m_snapOffTargetPattern = LEDPattern.steps(Map.of(0.0, Color.kRed, 0.25, Color.kBlack))
+    .scrollAtRelativeSpeed(Units.Hertz.of(2));
+
   /**
    * Creates a new Drivetrain.
    */
   public DrivetrainSubsystem(
     boolean isReal, 
-    Runnable restoreLEDPersistentPatternFunc,
-    Consumer<LEDPattern> setLEDTemporaryPatternFunc,
+    Runnable clearForegroundPatternFunc,
+    Consumer<LEDPattern> setForegroundPatternFunc,
     Supplier<LimelightInputs[]> limelightInputsSupplier) {
     setName("Drivetrain");
 
-    m_restoreLEDPersistentPatternFunc = restoreLEDPersistentPatternFunc;
-    m_setLEDTemporaryPatternFunc = setLEDTemporaryPatternFunc;
+    m_clearForegroundPatternFunc = clearForegroundPatternFunc;
+    m_setForegroundPatternFunc = setForegroundPatternFunc;
 
     // Create IO
     m_driveio = isReal 
@@ -165,7 +168,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   private void setSnapToEnabled(boolean enabled) {
     m_outputs.SnapEnabled = enabled;
-    if (!enabled) m_restoreLEDPersistentPatternFunc.run();
+    if (!enabled) m_clearForegroundPatternFunc.run();
   }
 
   /**
@@ -217,10 +220,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     if (EstimatePoseUsingRearCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 1);
 
     // Update LEDs
-    if (m_inputs.SnapOnTarget) {
-      m_setLEDTemporaryPatternFunc.accept(new SolidPattern(Color.GREEN));
+    if (m_inputs.SnapIsOnTarget) {
+      m_setForegroundPatternFunc.accept(m_snapOnTargetPattern);
     } else {
-      m_setLEDTemporaryPatternFunc.accept(new PulsePattern(Color.RED, 0.5));
+      m_setForegroundPatternFunc.accept(m_snapOffTargetPattern);
     }
 
     // Send outputs to the drive IO
@@ -244,7 +247,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         // If the driver is trying to rotate the robot, disable snap-to control
         if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
           setSnapToEnabled(false);
-          m_restoreLEDPersistentPatternFunc.run();
+          m_clearForegroundPatternFunc.run();
         }
 
         // Convert inputs to MPS

@@ -30,22 +30,22 @@ public class DrivetrainIOSim implements IDrivetrainIO {
   private SwerveDrivePoseEstimator m_poseEstimator;
 
   @Logged(name = "FrontLeftInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_frontLeftInputs;
+  private SwerveModuleIOInputs m_frontLeftInputs = new SwerveModuleIOInputs();
   @Logged(name = "FrontRightInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_frontRightInputs;
+  private SwerveModuleIOInputs m_frontRightInputs = new SwerveModuleIOInputs();
   @Logged(name = "RearLeftInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_rearLeftInputs;
+  private SwerveModuleIOInputs m_rearLeftInputs = new SwerveModuleIOInputs();
   @Logged(name = "RearRightInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_rearRightInputs;
+  private SwerveModuleIOInputs m_rearRightInputs = new SwerveModuleIOInputs();
   
   @Logged(name = "FrontLeftOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_frontLeftOutputs;
+  private SwerveModuleIOOutputs m_frontLeftOutputs = new SwerveModuleIOOutputs();
   @Logged(name = "FrontRightOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_frontRightOutputs;
+  private SwerveModuleIOOutputs m_frontRightOutputs = new SwerveModuleIOOutputs();
   @Logged(name = "RearLeftOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_rearLeftOutputs;
+  private SwerveModuleIOOutputs m_rearLeftOutputs = new SwerveModuleIOOutputs();
   @Logged(name = "RearRightOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_rearRightOutputs;
+  private SwerveModuleIOOutputs m_rearRightOutputs = new SwerveModuleIOOutputs();
 
   public DrivetrainIOSim() {
     m_inputs = new DrivetrainIOInputs();
@@ -149,7 +149,7 @@ public class DrivetrainIOSim implements IDrivetrainIO {
     // If snap-to is enabled, calculate and override the input rotational speed to reach the setpoint
     if (snapAngleEnabled) {
       // Report back that snap is on-target since we're assuming there is no loss in the simulation
-      m_inputs.SnapOnTarget = true;
+      m_inputs.SnapIsOnTarget = true;
     }
 
     // Correct drift by taking the input speeds and converting them to a desired per-period speed. This is known as "discretizing"

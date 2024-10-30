@@ -1,5 +1,5 @@
 {
-  "version": 1.0,
+  "version": "2025.0",
   "waypoints": [
     {
       "anchor": {
@@ -20,7 +20,7 @@
         "y": 7.0
       },
       "prevControl": {
-        "x": 1.9838583821311786,
+        "x": 1.9838583821311784,
         "y": 6.998240302786913
       },
       "nextControl": null,
@@ -30,10 +30,12 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
+  "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "Bring out Intake",
       "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
@@ -51,6 +53,7 @@
     {
       "name": "Intake Note",
       "waypointRelativePos": 0.8,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
@@ -70,18 +73,19 @@
     "maxVelocity": 2.5,
     "maxAcceleration": 2.5,
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 360.0
+    "maxAngularAcceleration": 360.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -0.32879961776107325,
-    "rotateFast": true
+    "rotation": -0.32879961776107325
   },
   "reversed": false,
   "folder": "Amp Side Auto Paths",
-  "previewStartingState": {
-    "rotation": 59.93162821859144,
-    "velocity": 0
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

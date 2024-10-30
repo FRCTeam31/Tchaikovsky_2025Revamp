@@ -174,7 +174,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
       desiredChassisSpeeds.omegaRadiansPerSecond = snapCorrection;
 
       // Report back if snap is on-target
-      m_inputs.SnapOnTarget = Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) < 0.1;
+      m_inputs.SnapIsOnTarget = Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) < 0.1;
     }
 
     // Correct drift by taking the input speeds and converting them to a desired per-period speed. This is known as "discretizing"

@@ -32,13 +32,14 @@ public class Container {
   private PrimeXboxController m_driverController;
   private PrimeXboxController m_operatorController;
 
-  @Logged(importance = Importance.CRITICAL)
+  @Logged(name="Vision", importance = Importance.CRITICAL)
   public VisionSubsystem Vision;
-  @Logged(importance = Importance.CRITICAL)
+  @Logged(name="Drive", importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
   public Shooter Shooter;
   public Intake Intake;
   public Climbers Climbers;
+  // public PwmLEDs LEDs;
   public PwmLEDs LEDs;
   public Compressor Compressor;
 
@@ -51,16 +52,18 @@ public class Container {
       m_operatorController = new PrimeXboxController(Controls.OPERATOR_PORT);
 
       // Create new subsystems
-      LEDs = new PwmLEDs();
+      LEDs = new PwmLEDs(isReal);
       Vision = new VisionSubsystem(new String[] {
         DriveMap.LimelightFrontName,
         DriveMap.LimelightRearName
       });
       Drivetrain = new DrivetrainSubsystem(isReal, 
-        LEDs::restorePersistentStripPattern, 
-        LEDs::setStripTemporaryPattern, 
+        LEDs::clearForegroundPattern, 
+        LEDs::setForegroundPattern, 
         Vision::getAllLimelightInputs);
-      Shooter = new Shooter(LEDs);
+      Shooter = new Shooter(
+        LEDs::clearForegroundPattern,
+        LEDs::setForegroundPattern);
       Intake = new Intake();
       Climbers = new Climbers();
       Compressor = new Compressor(30, PneumaticsModuleType.REVPH);
