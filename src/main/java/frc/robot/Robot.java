@@ -4,11 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.epilogue.Epilogue;
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Logged.Importance;
-import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.epilogue.logging.errors.ErrorHandler;
+
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -22,10 +18,9 @@ import prime.control.LEDs.Patterns.BlinkPattern;
 import prime.control.LEDs.Patterns.ChasePattern;
 import prime.control.LEDs.Patterns.PulsePattern;
 
-@Logged(strategy = Strategy.OPT_IN)
 public class Robot extends TimedRobot {
 
-  @Logged(name = "Robot/Container", importance = Importance.CRITICAL)
+
   private RobotContainer m_robotContainer;
   private Command m_autonomousCommand;
 
@@ -39,20 +34,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer(isReal());
 
     DataLogManager.start();
-    Epilogue.configure(config -> {
-      if (isSimulation()) {
-        // If running in simulation, then we'd want to re-throw any errors that
-        // occur so we can debug and fix them!
-        config.errorHandler = ErrorHandler.crashOnError();
-      }
 
-      // Change the root data path
-      config.root = "Telemetry";
-
-      // Configure minimum logging level
-      // config.minimumImportance = Logged.Importance.CRITICAL;
-    });
-    Epilogue.bind(this);
   }
 
   @Override

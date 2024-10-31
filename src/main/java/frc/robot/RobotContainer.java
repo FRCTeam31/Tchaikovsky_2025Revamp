@@ -8,34 +8,24 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Logged.Importance;
-import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.drivetrain.DriveMap;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
-import java.util.Map;
 import prime.control.Controls;
 import prime.control.HolonomicControlStyle;
 import prime.control.PrimeXboxController;
 
-@Logged(strategy = Strategy.OPT_IN)
+
 public class RobotContainer {
 
   private PrimeXboxController m_driverController;
   private PrimeXboxController m_operatorController;
 
-  @Logged(name = "Drivetrain", importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
   public Shooter Shooter;
   public Intake Intake;

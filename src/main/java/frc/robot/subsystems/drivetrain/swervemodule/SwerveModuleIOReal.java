@@ -13,8 +13,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,7 +21,6 @@ import frc.robot.subsystems.drivetrain.DriveMap;
 import prime.control.PrimePIDConstants;
 import prime.utilities.CTREConverter;
 
-@Logged(strategy = Strategy.OPT_IN)
 public class SwerveModuleIOReal implements ISwerveModuleIO {
 
   private SwerveModuleConfig m_map;
