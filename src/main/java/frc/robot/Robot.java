@@ -29,6 +29,8 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   public Robot() {
+    super(0.02); // Run the robot loop at 50Hz
+
     // Configure logging
     DataLogManager.start();
     DataLogManager.logConsoleOutput(true);
@@ -51,6 +53,14 @@ public class Robot extends TimedRobot {
 
     // Initialize the robot container
     m_robotContainer = new Container(isReal());
+
+    // Schedule the LED patterns to run at 200Hz
+    // This is the recommended way to schedule a periodic task that runs faster than the robot loop
+    // This also adds a delay of 3ms to the task to ensure it does not run at the same time as 
+    // subsystem periodic functions
+    addPeriodic(m_robotContainer.LEDs::updateLedStrip, 
+      Units.Milliseconds.of(5), 
+      Units.Milliseconds.of(3));
   }
 
   @Override
