@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drivetrain;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleIOInputs;
 import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleIOOutputs;
 import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleIOSim;
 
+@Logged(strategy = Strategy.OPT_IN)
 public class DrivetrainIOSim implements IDrivetrainIO {
 
   private DrivetrainIOInputs m_inputs;
@@ -29,23 +31,21 @@ public class DrivetrainIOSim implements IDrivetrainIO {
   private SwerveDriveKinematics m_kinematics;
   private SwerveDrivePoseEstimator m_poseEstimator;
 
-  @Logged(name = "FrontLeftInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_frontLeftInputs = new SwerveModuleIOInputs();
-  @Logged(name = "FrontRightInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_frontRightInputs = new SwerveModuleIOInputs();
-  @Logged(name = "RearLeftInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_rearLeftInputs = new SwerveModuleIOInputs();
-  @Logged(name = "RearRightInputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOInputs m_rearRightInputs = new SwerveModuleIOInputs();
-  
-  @Logged(name = "FrontLeftOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_frontLeftOutputs = new SwerveModuleIOOutputs();
-  @Logged(name = "FrontRightOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_frontRightOutputs = new SwerveModuleIOOutputs();
-  @Logged(name = "RearLeftOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_rearLeftOutputs = new SwerveModuleIOOutputs();
-  @Logged(name = "RearRightOutputs", importance = Logged.Importance.CRITICAL)
-  private SwerveModuleIOOutputs m_rearRightOutputs = new SwerveModuleIOOutputs();
+  @Logged(name = "ModuleInputs", importance = Logged.Importance.CRITICAL)
+  private SwerveModuleIOInputs[] m_moduleInputs = new SwerveModuleIOInputs[] {
+    new SwerveModuleIOInputs(),
+    new SwerveModuleIOInputs(),
+    new SwerveModuleIOInputs(),
+    new SwerveModuleIOInputs()
+  };
+
+  @Logged(name = "ModuleOutputs", importance = Logged.Importance.CRITICAL)
+  private SwerveModuleIOOutputs[] m_moduleOutputs = new SwerveModuleIOOutputs[] {
+    new SwerveModuleIOOutputs(),
+    new SwerveModuleIOOutputs(),
+    new SwerveModuleIOOutputs(),
+    new SwerveModuleIOOutputs()
+  };
 
   public DrivetrainIOSim() {
     m_inputs = new DrivetrainIOInputs();
@@ -75,10 +75,10 @@ public class DrivetrainIOSim implements IDrivetrainIO {
 
   @Override
   public DrivetrainIOInputs getInputs() {
-    m_frontLeftInputs = m_frontLeftModule.getInputs();
-    m_frontRightInputs = m_frontRightModule.getInputs();
-    m_rearLeftInputs = m_rearLeftModule.getInputs();
-    m_rearRightInputs = m_rearRightModule.getInputs();
+    m_moduleInputs[0] = m_frontLeftModule.getInputs();
+    m_moduleInputs[1] = m_frontRightModule.getInputs();
+    m_moduleInputs[2] = m_rearLeftModule.getInputs();
+    m_moduleInputs[3] = m_rearRightModule.getInputs();
 
     m_inputs.GyroAngle = Rotation2d.fromDegrees(m_gyroSim.getAngle());
     // m_inputs.GyroAccelX = m_gyro.getAccelerationX().getValueAsDouble();
@@ -109,10 +109,10 @@ public class DrivetrainIOSim implements IDrivetrainIO {
         break;
     }
 
-    m_frontLeftModule.setOutputs(m_frontLeftOutputs);
-    m_frontRightModule.setOutputs(m_frontRightOutputs);
-    m_rearLeftModule.setOutputs(m_rearLeftOutputs);
-    m_rearRightModule.setOutputs(m_rearRightOutputs);
+    m_frontLeftModule.setOutputs(m_moduleOutputs[0]);
+    m_frontRightModule.setOutputs(m_moduleOutputs[1]);
+    m_rearLeftModule.setOutputs(m_moduleOutputs[2]);
+    m_rearRightModule.setOutputs(m_moduleOutputs[3]);
   }
 
   @Override
@@ -187,33 +187,33 @@ public class DrivetrainIOSim implements IDrivetrainIO {
    * @param desiredStates
    */
   private void setDesiredModuleStates(SwerveModuleState[] desiredStates) {
-    m_frontLeftOutputs.DesiredState = desiredStates[0];
-    m_frontRightOutputs.DesiredState = desiredStates[1];
-    m_rearLeftOutputs.DesiredState = desiredStates[2];
-    m_rearRightOutputs.DesiredState = desiredStates[3];
+    m_moduleOutputs[0].DesiredState = desiredStates[0];
+    m_moduleOutputs[1].DesiredState = desiredStates[1];
+    m_moduleOutputs[2].DesiredState = desiredStates[2];
+    m_moduleOutputs[3].DesiredState = desiredStates[3];
   }
 
   /**
    * Gets the instantaneous states for each swerve module in FL, FR, RL, RR order
    */
-  private SwerveModuleState[] getModuleStates() {
+  public SwerveModuleState[] getModuleStates() {
     return new SwerveModuleState[] {
-      m_frontLeftInputs.ModuleState,
-      m_frontRightInputs.ModuleState,
-      m_rearLeftInputs.ModuleState,
-      m_rearRightInputs.ModuleState,
+      m_moduleInputs[0].ModuleState,
+      m_moduleInputs[1].ModuleState,
+      m_moduleInputs[2].ModuleState,
+      m_moduleInputs[3].ModuleState,
     };
   }
 
   /**
    * Gets the cumulative positions for each swerve module in FL, FR, RL, RR order
    */
-  private SwerveModulePosition[] getModulePositions() {
+  public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] {
-      m_frontLeftInputs.ModulePosition,
-      m_frontRightInputs.ModulePosition,
-      m_rearLeftInputs.ModulePosition,
-      m_rearRightInputs.ModulePosition,
+      m_moduleInputs[0].ModulePosition,
+      m_moduleInputs[1].ModulePosition,
+      m_moduleInputs[2].ModulePosition,
+      m_moduleInputs[3].ModulePosition,
     };
   }
 }

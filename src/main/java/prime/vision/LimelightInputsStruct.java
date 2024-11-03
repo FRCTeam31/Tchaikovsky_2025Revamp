@@ -32,7 +32,12 @@ public class LimelightInputsStruct implements Struct<LimelightInputs> {
 
     @Override
     public String getSchema() {
-        return "limelight inputs";
+        return "Rotation2d TargetHorizontalOffset; Rotation2d TargetVerticalOffset; double TargetArea; int64 PipelineLatencyMs; int64 CapturePipelineLatencyMs; int64 TotalLatencyMs; int32 ApriltagId; double TagCount; LimelightPose FieldSpaceRobotPose; LimelightPose RedAllianceOriginFieldSpaceRobotPose; LimelightPose BlueAllianceOriginFieldSpaceRobotPose; LimelightPose TargetSpaceRobotPose; LimelightPose TargetSpaceCameraPose; LimelightPose RobotSpaceCameraPose; LimelightPose CameraSpaceTargetPose; LimelightPose RobotSpaceTargetPose;";
+    }
+
+    @Override
+    public Struct<?>[] getNested() {
+        return new Struct<?>[] { Rotation2d.struct, LimelightPose.struct };
     }
 
     @Override

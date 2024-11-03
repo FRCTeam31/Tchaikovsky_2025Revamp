@@ -221,7 +221,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   /**
    * Gets the instantaneous states for each swerve module in FL, FR, RL, RR order
    */
-  private SwerveModuleState[] getModuleStates() {
+  public SwerveModuleState[] getModuleStates() {
     return new SwerveModuleState[] {
       m_frontLeftInputs.ModuleState,
       m_frontRightInputs.ModuleState,
@@ -233,7 +233,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   /**
    * Gets the cumulative positions for each swerve module in FL, FR, RL, RR order
    */
-  private SwerveModulePosition[] getModulePositions() {
+  public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] {
       m_frontLeftInputs.ModulePosition,
       m_frontRightInputs.ModulePosition,

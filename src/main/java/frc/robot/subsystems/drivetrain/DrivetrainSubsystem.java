@@ -56,11 +56,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
     .getEntry();
 
   // IO
-  private IDrivetrainIO m_driveio;
-
-  @Logged(name = "DriveInputs", importance = Logged.Importance.CRITICAL)
+  @Logged(name = "DriveIO", importance = Logged.Importance.CRITICAL)
+  private IDrivetrainIO m_driveio = Robot.isReal()
+    ? new DrivetrainIOReal() 
+    : new DrivetrainIOSim();
   private DrivetrainIOInputs m_inputs;
-  @Logged(name = "DriveOutputs", importance = Logged.Importance.CRITICAL)
+  @Logged(name = "DriveIOOutputs", importance = Logged.Importance.CRITICAL)
   private DrivetrainIOOutputs m_outputs;
 
   // Vision, Kinematics, odometry
@@ -90,9 +91,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_setForegroundPatternFunc = setForegroundPatternFunc;
 
     // Create IO
-    m_driveio = isReal 
-      ? new DrivetrainIOReal() 
-      : new DrivetrainIOSim();
     m_inputs = m_driveio.getInputs();
     m_outputs = new DrivetrainIOOutputs();
 

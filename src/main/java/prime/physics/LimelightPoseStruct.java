@@ -27,7 +27,12 @@ public class LimelightPoseStruct implements Struct<LimelightPose> {
 
     @Override
     public String getSchema() {
-        return "limelight pose";
+        return "Pose3d Pose; double Timestamp; double TagCount; double TagSpan; double AvgTagDistanceMeters; double AvgTagArea; Matrix<N3, N1> StdDeviations;";
+    }
+
+    @Override
+    public Struct<?>[] getNested() {
+        return new Struct<?>[] {Pose3d.struct, Matrix.getStruct(Nat.N3(), Nat.N1())};
     }
 
     @Override
