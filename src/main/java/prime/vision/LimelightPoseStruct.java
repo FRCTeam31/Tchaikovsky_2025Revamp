@@ -36,15 +36,10 @@ public class LimelightPoseStruct implements Struct<LimelightPose> {
     @Override
     public LimelightPose unpack(ByteBuffer bb) {
         var pose = Pose3d.struct.unpack(bb);
-
-        var data = new double[5];
-        for (int i = 0; i < 5; i++) {
-            data[i] = bb.getDouble(i * kSizeDouble);
-        }
-
+        var tagData = Struct.unpackDoubleArray(bb, 5);
         var stdDeviations = Struct.unpackDoubleArray(bb, 3);
 
-        return new LimelightPose(pose, data, stdDeviations);
+        return new LimelightPose(pose, tagData, stdDeviations);
     }
 
     @Override
