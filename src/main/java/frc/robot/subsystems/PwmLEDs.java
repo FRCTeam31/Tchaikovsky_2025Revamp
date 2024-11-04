@@ -22,7 +22,7 @@ public class PwmLEDs extends SubsystemBase {
     private AddressableLEDBuffer m_ledBuffer;
     private byte _loopErrorCounter = 0;
 
-    private LEDPattern m_backgroundPattern = LEDPattern.solid(Color.kGray);
+    private LEDPattern m_backgroundPattern = LEDPattern.solid(Color.kOrange);
     private LEDPattern m_foregroundPattern = null;
 
     private Alert m_loopStoppedAlert;

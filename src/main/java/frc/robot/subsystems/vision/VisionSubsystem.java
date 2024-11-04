@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.DriverDashboard;
+import frc.robot.maps.DriveMap;
 import prime.vision.LimelightInputs;
 
 @Logged(strategy = Strategy.OPT_IN)
@@ -15,17 +16,18 @@ public class VisionSubsystem extends SubsystemBase {
 
     private LimelightInputs[] m_limelightInputs;
 
-    public VisionSubsystem(String[] tableNames) {
+    public VisionSubsystem() {
         setName("VisionSubsystem");
-        SmartDashboard.putNumber("LimelightCount", tableNames.length);
         var defaultInstance = NetworkTableInstance.getDefault();
 
-        m_limelights = new LimeLightNT[tableNames.length];
-        m_limelightInputs = new LimelightInputs[tableNames.length];
-        for (int i = 0; i < tableNames.length; i++) {
-            m_limelights[i] = new LimeLightNT(defaultInstance, tableNames[i]);
-            m_limelightInputs[i] = m_limelights[i].getInputs();
-        }
+        m_limelights = new LimeLightNT[] {
+            new LimeLightNT(defaultInstance, DriveMap.LimelightFrontName),
+            new LimeLightNT(defaultInstance, DriveMap.LimelightRearName)
+        };
+        m_limelightInputs = new LimelightInputs[] {
+            m_limelights[0].getInputs(),
+            m_limelights[1].getInputs()
+        };
     }
 
     /**

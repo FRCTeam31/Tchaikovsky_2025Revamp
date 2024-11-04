@@ -53,10 +53,7 @@ public class Container {
 
       // Create new subsystems
       LEDs = new PwmLEDs();
-      Vision = new VisionSubsystem(new String[] {
-        DriveMap.LimelightFrontName,
-        DriveMap.LimelightRearName
-      });
+      Vision = new VisionSubsystem();
       Drivetrain = new DrivetrainSubsystem(isReal, 
         LEDs::clearForegroundPattern, 
         LEDs::setForegroundPattern, 

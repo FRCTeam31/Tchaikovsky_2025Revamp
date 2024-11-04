@@ -221,8 +221,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     EstimatePoseUsingFrontCamera = DriverDashboard.FrontPoseEstimationSwitch.getBoolean(false);
     if (EstimatePoseUsingFrontCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 0);
 
-    EstimatePoseUsingRearCamera = DriverDashboard.RearPoseEstimationSwitch.getBoolean(false);
-    if (EstimatePoseUsingRearCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 1);
+    // EstimatePoseUsingRearCamera = DriverDashboard.RearPoseEstimationSwitch.getBoolean(false);
+    // if (EstimatePoseUsingRearCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 1);
 
     // Update LEDs
     if (m_inputs.SnapIsOnTarget) {
