@@ -3,7 +3,6 @@ package prime.vision;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.struct.StructSerializable;
-import prime.physics.LimelightPose;
 
 @Logged
 public class LimelightInputs implements StructSerializable {

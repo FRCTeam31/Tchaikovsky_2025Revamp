@@ -1,4 +1,4 @@
-package prime.physics;
+package prime.vision;
 
 import java.nio.ByteBuffer;
 

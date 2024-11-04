@@ -15,6 +15,8 @@ public class VisionSubsystem extends SubsystemBase {
     private LimeLightNT[] m_limelights;
 
     private LimelightInputs[] m_limelightInputs;
+    @Logged(name = "LimelightInputCount", importance = Logged.Importance.CRITICAL)
+    private int limelightInputCount;
 
     public VisionSubsystem() {
         setName("VisionSubsystem");
@@ -28,6 +30,7 @@ public class VisionSubsystem extends SubsystemBase {
             m_limelights[0].getInputs(),
             m_limelights[1].getInputs()
         };
+        limelightInputCount = m_limelightInputs.length;
     }
 
     /**
@@ -119,9 +122,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     public void periodic() {
         // Update all limelight inputs
-        for (int i = 0; i < m_limelights.length; i++) {
-            m_limelightInputs[i] = m_limelights[i].getInputs();
-        }
+        // for (int i = 0; i < m_limelights.length; i++) {
+        //     m_limelightInputs[i] = m_limelights[i].getInputs();
+        // }
+        limelightInputCount = m_limelightInputs.length;
 
         // Update Dashboard & logging
         var frontInputs = getLimelightInputs(0);

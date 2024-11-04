@@ -11,8 +11,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import prime.physics.LimelightPose;
 import prime.vision.LimelightInputs;
+import prime.vision.LimelightPose;
 
 public class LimeLightNT implements AutoCloseable {
     private NetworkTable m_limelightTable;

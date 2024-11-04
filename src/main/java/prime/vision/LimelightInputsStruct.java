@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.struct.Struct;
-import prime.physics.LimelightPose;
 
 public class LimelightInputsStruct implements Struct<LimelightInputs> {
     @Override
