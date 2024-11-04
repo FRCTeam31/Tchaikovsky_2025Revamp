@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.DriverDashboard;
+
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -41,9 +43,6 @@ public class Climbers extends SubsystemBase {
     kRight,
   }
 
-  // Configuration
-  private DriverDashboard m_driverDashboard;
-
   // Motors
   private VictorSPX m_leftVictorSPX;
   private VictorSPX m_rightVictorSPX;
@@ -63,9 +62,7 @@ public class Climbers extends SubsystemBase {
    * Creates a new Climbers subsystem
    * @param config
    */
-  public Climbers(DriverDashboard dashboard) {
-    m_driverDashboard = dashboard;
-
+  public Climbers() {
     m_leftVictorSPX = new VictorSPX(VMap.VictorSPXLeftCanID);
     m_leftVictorSPX.configFactoryDefault();
     m_leftVictorSPX.setInverted(VMap.LeftInverted);
@@ -163,14 +160,12 @@ public class Climbers extends SubsystemBase {
   public void periodic() {
     // d_leftLimitEntry.setBoolean(m_leftLimitSwitch.get());
     // d_rightLimitEntry.setBoolean(m_rightLimitSwitch.get());
-    m_driverDashboard.ClimberControlsActiveBox.setBoolean(m_climbControlsEnabled);
+    DriverDashboard.ClimberControlsActiveBox.setBoolean(m_climbControlsEnabled);
 
     // Level2 Logging
     SmartDashboard.putBoolean("Climbers/ControlsEnabled", m_climbControlsEnabled);
-
     SmartDashboard.putNumber("Climbers/LeftMotorOutput", m_leftVictorSPX.getMotorOutputPercent());
     SmartDashboard.putNumber("Climbers/RightMotorOutput", m_rightVictorSPX.getMotorOutputPercent());
-
     SmartDashboard.putBoolean("Climbers/LeftLimitSwitch", m_leftLimitSwitch.get());
     SmartDashboard.putBoolean("Climbers/RightLimitSwitch", m_rightLimitSwitch.get());
   }

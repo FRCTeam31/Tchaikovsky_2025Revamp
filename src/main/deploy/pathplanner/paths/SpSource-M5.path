@@ -1,5 +1,5 @@
 {
-  "version": 1.0,
+  "version": "2025.0",
   "waypoints": [
     {
       "anchor": {
@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 3.25038271698165,
-        "y": 2.634740404615945
+        "y": 2.6347404046159446
       },
       "isLocked": false,
       "linkedName": "Speaker Source-Side"
@@ -21,7 +21,7 @@
       },
       "prevControl": {
         "x": 4.988386913710764,
-        "y": 2.0338346983000273
+        "y": 2.0338346983000277
       },
       "nextControl": null,
       "isLocked": false,
@@ -38,14 +38,18 @@
         "maxVelocity": 3.0,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 360.0,
-        "maxAngularAcceleration": 540.0
+        "maxAngularAcceleration": 540.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
       }
     }
   ],
+  "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "Set Intake Out",
       "waypointRelativePos": 0.6,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
@@ -63,6 +67,7 @@
     {
       "name": "Intake Note",
       "waypointRelativePos": 0.95,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
@@ -79,21 +84,22 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 540.0
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -15.018360631150598,
-    "rotateFast": true
+    "rotation": -15.018360631150598
   },
   "reversed": false,
-  "folder": "Source Side Auto Paths",
-  "previewStartingState": {
-    "rotation": -60.326805543460246,
-    "velocity": 0
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

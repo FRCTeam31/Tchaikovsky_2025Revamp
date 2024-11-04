@@ -1,5 +1,5 @@
 {
-  "version": 1.0,
+  "version": "2025.0",
   "waypoints": [
     {
       "anchor": {
@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0347874519281977,
+        "x": 3.25,
         "y": 5.23
       },
       "isLocked": false,
@@ -20,7 +20,7 @@
         "y": 6.23
       },
       "prevControl": {
-        "x": 2.982072629126527,
+        "x": 2.75,
         "y": 6.23
       },
       "nextControl": null,
@@ -30,20 +30,25 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
+  "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.0,
     "maxAcceleration": 1.0,
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 180.0
+    "maxAngularAcceleration": 180.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.67209552796092,
-    "rotateFast": false
+    "rotation": 90.67209552796092
   },
   "reversed": false,
   "folder": "Test Autos",
-  "previewStartingState": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
   "useDefaultConstraints": false
 }

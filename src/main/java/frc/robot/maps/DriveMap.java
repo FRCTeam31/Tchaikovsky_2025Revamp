@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrain;
+package frc.robot.maps;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
@@ -6,7 +6,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.MomentOfInertia;
-import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleConfig;
 import prime.control.PrimePIDConstants;
 
 public class DriveMap {
@@ -35,7 +34,7 @@ public class DriveMap {
   public static final String LimelightFrontName = "limelight-front";
   public static final RobotConfig PathPlannerRobotConfiguration = new RobotConfig(
     Units.lbsToKilograms(120),
-    MomentOfInertia.ofBaseUnits(6, edu.wpi.first.units.Units.KilogramSquareMeters).baseUnitMagnitude(), // TODO???
+    MomentOfInertia.ofBaseUnits(6, edu.wpi.first.units.Units.KilogramSquareMeters).baseUnitMagnitude(), // TODO: measure, maybe???
     new ModuleConfig(
       Units.inchesToMeters(4),
       MaxSpeedMetersPerSecond,
@@ -48,7 +47,7 @@ public class DriveMap {
     WheelBaseMeters
   );
 
-  public static final SwerveModuleConfig FrontLeftSwerveModule = new SwerveModuleConfig(
+  public static final SwerveModuleMap FrontLeftSwerveModule = new SwerveModuleMap(
     2,
     3,
     4,
@@ -57,7 +56,7 @@ public class DriveMap {
     true,
     new Translation2d(TrackWidthMeters / 2, WheelBaseMeters / 2)
   );
-  public static final SwerveModuleConfig FrontRightSwerveModule = new SwerveModuleConfig(
+  public static final SwerveModuleMap FrontRightSwerveModule = new SwerveModuleMap(
     5,
     6,
     7,
@@ -66,7 +65,7 @@ public class DriveMap {
     true,
     new Translation2d(TrackWidthMeters / 2, -(WheelBaseMeters / 2))
   );
-  public static final SwerveModuleConfig RearRightSwerveModule = new SwerveModuleConfig(
+  public static final SwerveModuleMap RearRightSwerveModule = new SwerveModuleMap(
     8,
     9,
     10,
@@ -75,7 +74,7 @@ public class DriveMap {
     true,
     new Translation2d(-(TrackWidthMeters / 2), -(WheelBaseMeters / 2))
   );
-  public static final SwerveModuleConfig RearLeftSwerveModule = new SwerveModuleConfig(
+  public static final SwerveModuleMap RearLeftSwerveModule = new SwerveModuleMap(
     11,
     12,
     13,

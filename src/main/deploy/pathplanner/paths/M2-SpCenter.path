@@ -1,5 +1,5 @@
 {
-  "version": 1.0,
+  "version": "2025.0",
   "waypoints": [
     {
       "anchor": {
@@ -38,14 +38,18 @@
         "maxVelocity": 5.0,
         "maxAcceleration": 2.25,
         "maxAngularVelocity": 360.0,
-        "maxAngularAcceleration": 540.0
+        "maxAngularAcceleration": 540.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
       }
     }
   ],
+  "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "Bring Note In",
       "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
@@ -69,6 +73,7 @@
     {
       "name": "Run Shooter Up to Speed",
       "waypointRelativePos": 0.7,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
@@ -85,21 +90,22 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
-    "maxAngularVelocity": 360.0,
-    "maxAngularAcceleration": 540.0
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.03466879540972598,
-    "rotateFast": true
+    "rotation": 0.03466879540972598
   },
   "reversed": false,
-  "folder": "Center Auto Paths",
-  "previewStartingState": {
-    "rotation": -14.210362244267992,
-    "velocity": 0
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

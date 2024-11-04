@@ -1,40 +1,27 @@
 package frc.robot.subsystems.drivetrain.swervemodule;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.sim.MotorSim;
-import frc.robot.subsystems.drivetrain.DriveMap;
+import frc.robot.maps.SwerveModuleMap;
 
 public class SwerveModuleIOSim implements ISwerveModuleIO {
 
-  private SwerveModuleIOInputs m_inputs;
+  private SwerveModuleIOInputs m_inputs = new SwerveModuleIOInputs();
 
-  // Devices
-  private MotorSim m_driveMotor;
-  private double _steerAngle = 0;
-
-  public SwerveModuleIOSim(SwerveModuleConfig moduleMap) {
-    m_driveMotor = new MotorSim(DriveMap.MaxSpeedMetersPerSecond);
+  public SwerveModuleIOSim(SwerveModuleMap moduleMap) {
   }
 
   @Override
   public SwerveModuleIOInputs getInputs() {
-    m_inputs.ModuleState.angle = Rotation2d.fromDegrees(_steerAngle);
-    m_inputs.ModuleState.speedMetersPerSecond = m_driveMotor.getVelocity();
-    m_inputs.ModulePosition.angle = Rotation2d.fromDegrees(_steerAngle);
-    m_inputs.ModulePosition.distanceMeters = m_driveMotor.getDistance();
-
     return m_inputs;
   }
 
   @Override
   public void setOutputs(SwerveModuleIOOutputs outputs) {
-    _steerAngle = outputs.DesiredState.angle.getDegrees();
-    var normalizedSpeed = outputs.DesiredState.speedMetersPerSecond / DriveMap.MaxSpeedMetersPerSecond;
-    m_driveMotor.set(normalizedSpeed);
+    // Right now, just assume that the module is perfect and has no losses.
+    // This may be replaced with a more realistic simulation later.
+    m_inputs.ModuleState = outputs.DesiredState;
   }
 
   @Override
   public void stopMotors() {
-    m_driveMotor.stopMotor();
   }
 }

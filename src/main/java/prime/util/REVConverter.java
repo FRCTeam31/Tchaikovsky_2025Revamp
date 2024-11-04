@@ -1,4 +1,4 @@
-package prime.utilities;
+package prime.util;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 

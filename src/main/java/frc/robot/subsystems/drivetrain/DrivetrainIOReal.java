@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Robot;
+import frc.robot.maps.DriveMap;
 import frc.robot.subsystems.drivetrain.swervemodule.*;
 
 @Logged(strategy = Strategy.OPT_IN)
@@ -33,6 +34,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   private SwerveDrivePoseEstimator m_poseEstimator;
 
   private ISwerveModuleIO m_frontLeftModule, m_frontRightModule, m_rearLeftModule, m_rearRightModule;
+
   @Logged(name = "FrontLeftInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_frontLeftInputs;
   @Logged(name = "FrontRightInputs", importance = Logged.Importance.CRITICAL)
@@ -41,6 +43,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   private SwerveModuleIOInputs m_rearLeftInputs;
   @Logged(name = "RearRightInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_rearRightInputs;
+  
   @Logged(name = "FrontLeftOutputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOOutputs m_frontLeftOutputs;
   @Logged(name = "FrontRightOutputs", importance = Logged.Importance.CRITICAL)
@@ -172,7 +175,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
       desiredChassisSpeeds.omegaRadiansPerSecond = snapCorrection;
 
       // Report back if snap is on-target
-      m_inputs.SnapOnTarget = Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) < 0.1;
+      m_inputs.SnapIsOnTarget = Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) < 0.1;
     }
 
     // Correct drift by taking the input speeds and converting them to a desired per-period speed. This is known as "discretizing"
@@ -219,7 +222,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   /**
    * Gets the instantaneous states for each swerve module in FL, FR, RL, RR order
    */
-  private SwerveModuleState[] getModuleStates() {
+  public SwerveModuleState[] getModuleStates() {
     return new SwerveModuleState[] {
       m_frontLeftInputs.ModuleState,
       m_frontRightInputs.ModuleState,
@@ -231,7 +234,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   /**
    * Gets the cumulative positions for each swerve module in FL, FR, RL, RR order
    */
-  private SwerveModulePosition[] getModulePositions() {
+  public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] {
       m_frontLeftInputs.ModulePosition,
       m_frontRightInputs.ModulePosition,
