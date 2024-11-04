@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drivetrain.swervemodule;
+package frc.robot.maps;
 
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Current;
 
-public class SwerveModuleConfig {
+public class SwerveModuleMap {
 
   public int DriveMotorCanId;
   public int SteeringMotorCanId;
@@ -24,7 +24,7 @@ public class SwerveModuleConfig {
     .withSupplyCurrentLimitEnable(true)
     .withSupplyCurrentLimit(Current.ofBaseUnits(40, Units.Amp));
 
-  public SwerveModuleConfig(
+  public SwerveModuleMap(
     int driveMotorCanId,
     int steeringMotorCanId,
     int canCoderCanId,

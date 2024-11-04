@@ -2,8 +2,6 @@ package prime.physics;
 
 import java.nio.ByteBuffer;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.util.struct.Struct;
 
@@ -20,19 +18,19 @@ public class LimelightPoseStruct implements Struct<LimelightPose> {
 
     @Override
     public int getSize() {
-        var size = Pose3d.struct.getSize() + (kSizeDouble * 5) + Matrix.getStruct(Nat.N3(), Nat.N1()).getSize();
+        var size = Pose3d.struct.getSize() + (kSizeDouble * 5) + (kSizeDouble * 3);
 
         return size;
     }
 
     @Override
     public String getSchema() {
-        return "Pose3d Pose; double Timestamp; double TagCount; double TagSpan; double AvgTagDistanceMeters; double AvgTagArea; Matrix<N3, N1> StdDeviations;";
+        return "Pose3d pose;double timestamp;double tagCount;double tagSpan;double avgTagDistanceMeters;double avgTagArea;double stdDeviations[3]";
     }
 
     @Override
     public Struct<?>[] getNested() {
-        return new Struct<?>[] {Pose3d.struct, Matrix.getStruct(Nat.N3(), Nat.N1())};
+        return new Struct<?>[] {Pose3d.struct};
     }
 
     @Override
@@ -41,11 +39,11 @@ public class LimelightPoseStruct implements Struct<LimelightPose> {
 
         var data = new double[5];
         for (int i = 0; i < 5; i++) {
-        data[i] = bb.getDouble(i * kSizeDouble);
+            data[i] = bb.getDouble(i * kSizeDouble);
         }
 
-        var stdDeviations = Matrix.getStruct(Nat.N3(), Nat.N1()).unpack(bb.position(kSizeDouble * 11));
-        
+        var stdDeviations = Struct.unpackDoubleArray(bb, 3);
+
         return new LimelightPose(pose, data, stdDeviations);
     }
 
@@ -57,11 +55,6 @@ public class LimelightPoseStruct implements Struct<LimelightPose> {
         bb.putDouble(value.TagSpan);
         bb.putDouble(value.AvgTagDistanceMeters);
         bb.putDouble(value.AvgTagArea);
-        Matrix.getStruct(Nat.N3(), Nat.N1()).pack(bb, value.StdDeviations);
-    }
-
-    @Override
-    public boolean isImmutable() {
-        return true;
+        Struct.packArray(bb, value.StdDeviations);
     }
 }

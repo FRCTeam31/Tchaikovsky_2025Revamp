@@ -17,13 +17,13 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.subsystems.drivetrain.DriveMap;
+import frc.robot.maps.*;
 import prime.control.PrimePIDConstants;
 import prime.util.CTREConverter;
 
 public class SwerveModuleIOReal implements ISwerveModuleIO {
 
-  private SwerveModuleConfig m_map;
+  private SwerveModuleMap m_map;
   private SwerveModuleIOInputs m_inputs;
 
   // Devices
@@ -36,7 +36,7 @@ public class SwerveModuleIOReal implements ISwerveModuleIO {
   // Starts at velocity 0, no feed forward. Uses PID slot 0.
   private final VelocityVoltage m_voltageVelocity = new VelocityVoltage(0, 0, false, 0, 0, false, false, false, false);
 
-  public SwerveModuleIOReal(SwerveModuleConfig moduleMap) {
+  public SwerveModuleIOReal(SwerveModuleMap moduleMap) {
     m_map = moduleMap;
 
     setupSteeringMotor(DriveMap.SteeringPID);

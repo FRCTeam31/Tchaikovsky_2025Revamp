@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.drivetrain.DriveMap;
+import frc.robot.maps.DriveMap;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
@@ -47,12 +47,12 @@ public class Container {
 
   public Container(boolean isReal) {
     try {
-      DriverDashboard.init();
+      DriverDashboard.init(isReal);
       m_driverController = new PrimeXboxController(Controls.DRIVER_PORT);
       m_operatorController = new PrimeXboxController(Controls.OPERATOR_PORT);
 
       // Create new subsystems
-      LEDs = new PwmLEDs(isReal);
+      LEDs = new PwmLEDs();
       Vision = new VisionSubsystem(new String[] {
         DriveMap.LimelightFrontName,
         DriveMap.LimelightRearName

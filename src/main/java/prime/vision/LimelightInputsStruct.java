@@ -22,8 +22,7 @@ public class LimelightInputsStruct implements Struct<LimelightInputs> {
         // Calculate the size based on the fields in LimelightInputs
         int size = Rotation2d.struct.getSize() * 2; // For TargetHorizontalOffset and TargetVerticalOffset
         size += kSizeDouble; // For TargetArea
-        size += kSizeInt64 * 3; // For PipelineLatencyMs, CapturePipelineLatencyMs, TotalLatencyMs
-        size += kSizeInt32; // For ApriltagId
+        size += kSizeInt32 * 4; // For PipelineLatencyMs, CapturePipelineLatencyMs, TotalLatencyMs, and ApriltagId
         size += kSizeDouble; // For TagCount
         size += LimelightPose.struct.getSize() * 8; // For all poses
 
@@ -32,12 +31,30 @@ public class LimelightInputsStruct implements Struct<LimelightInputs> {
 
     @Override
     public String getSchema() {
-        return "Rotation2d TargetHorizontalOffset; Rotation2d TargetVerticalOffset; double TargetArea; int64 PipelineLatencyMs; int64 CapturePipelineLatencyMs; int64 TotalLatencyMs; int32 ApriltagId; double TagCount; LimelightPose FieldSpaceRobotPose; LimelightPose RedAllianceOriginFieldSpaceRobotPose; LimelightPose BlueAllianceOriginFieldSpaceRobotPose; LimelightPose TargetSpaceRobotPose; LimelightPose TargetSpaceCameraPose; LimelightPose RobotSpaceCameraPose; LimelightPose CameraSpaceTargetPose; LimelightPose RobotSpaceTargetPose;";
+        return "Rotation2d targetHorizontalOffset;"+
+        "Rotation2d targetVerticalOffset;"+
+        "double targetArea;"+
+        "int64 pipelineLatencyMs;"+
+        "int64 capturePipelineLatencyMs;"+
+        "int64 totalLatencyMs;"+
+        "int32 apriltagId;"+
+        "double tagCount;"+
+        "LimelightPose fieldSpaceRobotPose;"+
+        "LimelightPose redAllianceOriginFieldSpaceRobotPose;"+
+        "LimelightPose blueAllianceOriginFieldSpaceRobotPose;"+
+        "LimelightPose targetSpaceRobotPose;"+
+        "LimelightPose targetSpaceCameraPose;"+
+        "LimelightPose robotSpaceCameraPose;"+
+        "LimelightPose cameraSpaceTargetPose;"+
+        "LimelightPose robotSpaceTargetPose";
     }
 
     @Override
     public Struct<?>[] getNested() {
-        return new Struct<?>[] { Rotation2d.struct, LimelightPose.struct };
+        return new Struct<?>[] { 
+            Rotation2d.struct, 
+            LimelightPose.struct, 
+        };
     }
 
     @Override
@@ -47,9 +64,9 @@ public class LimelightInputsStruct implements Struct<LimelightInputs> {
         inputs.TargetHorizontalOffset = Rotation2d.struct.unpack(bb);
         inputs.TargetVerticalOffset = Rotation2d.struct.unpack(bb);
         inputs.TargetArea = bb.getDouble();
-        inputs.PipelineLatencyMs = bb.getLong();
-        inputs.CapturePipelineLatencyMs = bb.getLong();
-        inputs.TotalLatencyMs = bb.getLong();
+        inputs.PipelineLatencyMs = bb.getInt();
+        inputs.CapturePipelineLatencyMs = bb.getInt();
+        inputs.TotalLatencyMs = bb.getInt();
         inputs.ApriltagId = bb.getInt();
         inputs.TagCount = bb.getDouble();
         inputs.FieldSpaceRobotPose = LimelightPose.struct.unpack(bb);
@@ -69,9 +86,9 @@ public class LimelightInputsStruct implements Struct<LimelightInputs> {
         Rotation2d.struct.pack(bb, value.TargetHorizontalOffset);
         Rotation2d.struct.pack(bb, value.TargetVerticalOffset);
         bb.putDouble(value.TargetArea);
-        bb.putLong(value.PipelineLatencyMs);
-        bb.putLong(value.CapturePipelineLatencyMs);
-        bb.putLong(value.TotalLatencyMs);
+        bb.putInt(value.PipelineLatencyMs);
+        bb.putInt(value.CapturePipelineLatencyMs);
+        bb.putInt(value.TotalLatencyMs);
         bb.putInt(value.ApriltagId);
         bb.putDouble(value.TagCount);
         LimelightPose.struct.pack(bb, value.FieldSpaceRobotPose);
@@ -82,10 +99,5 @@ public class LimelightInputsStruct implements Struct<LimelightInputs> {
         LimelightPose.struct.pack(bb, value.RobotSpaceCameraPose);
         LimelightPose.struct.pack(bb, value.CameraSpaceTargetPose);
         LimelightPose.struct.pack(bb, value.RobotSpaceTargetPose);
-    }
-
-    @Override
-    public boolean isImmutable() {
-        return true;
     }
 }

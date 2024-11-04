@@ -80,7 +80,7 @@ public class DriverDashboard {
    * Constructs a new DriverDashboard and adds complex widgets that must be created in the constructor
    * @param config
    */
-  public static void init() {
+  public static void init(boolean isReal) {
     // DriverTab
     //   .addCamera(
     //     "Rear Limelight",
@@ -91,11 +91,12 @@ public class DriverDashboard {
     //   .withSize(6, 6)
     //   .withWidget(BuiltInWidgets.kCameraStream)
     //   .withProperties(Map.of("Show controls", false, "Show crosshair", false));
-    m_frontColorCam = CameraServer.startAutomaticCapture();
-    m_frontColorCam.setResolution(320, 240);
-    m_frontColorCam.setFPS(20);
-    m_frontColorCam.setPixelFormat(PixelFormat.kMJPEG);
-
+    if (isReal) {
+      m_frontColorCam = CameraServer.startAutomaticCapture();
+      m_frontColorCam.setResolution(320, 240);
+      m_frontColorCam.setFPS(20);
+      m_frontColorCam.setPixelFormat(PixelFormat.kMJPEG);
+    }
     // DriverTab
     //   .add(m_frontColorCam)
     //   .withPosition(6, 0)

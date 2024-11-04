@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.DriverDashboard;
 import frc.robot.Robot;
+import frc.robot.maps.DriveMap;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Map;
@@ -35,6 +36,12 @@ import prime.vision.LimelightInputs;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class DrivetrainSubsystem extends SubsystemBase {
+
+  public enum DrivetrainControlMode {
+    kRobotRelative,
+    kFieldRelative,
+    kPathFollowing,
+  }
 
   private Runnable m_clearForegroundPatternFunc;
   private Consumer<LEDPattern> m_setForegroundPatternFunc;
@@ -191,7 +198,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     if (isValidTarget && withinTrustedVelocity) {
       var llPose = limelightInputs.BlueAllianceOriginFieldSpaceRobotPose;
 
-      m_driveio.addPoseEstimatorVisionMeasurement(llPose.Pose.toPose2d(), llPose.Timestamp, llPose.StdDeviations);
+      m_driveio.addPoseEstimatorVisionMeasurement(llPose.Pose.toPose2d(), llPose.Timestamp, llPose.getStdDeviations());
     }
   }
 

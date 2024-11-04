@@ -18,7 +18,6 @@ public class PwmLEDs extends SubsystemBase {
         public static final double BackgroundDimAmount = 0.5;
     }
 
-    private boolean m_isRobotReal;
     private AddressableLED m_led;
     private AddressableLEDBuffer m_ledBuffer;
     private byte _loopErrorCounter = 0;
@@ -29,29 +28,24 @@ public class PwmLEDs extends SubsystemBase {
     private Alert m_loopStoppedAlert;
     private Dimensionless m_backgroundDimAmount = Units.Percent.of(50);
 
-    public PwmLEDs(boolean isReal) {
-        m_isRobotReal = isReal;
-        if (m_isRobotReal) {
-            // Initialize the LED strip and buffer
-            m_ledBuffer = new AddressableLEDBuffer(VMap.PixelsPerStrip);
-            m_led = new AddressableLED(VMap.PwmPort);
-            m_led.setLength(m_ledBuffer.getLength());
-            m_led.start();
+    public PwmLEDs() {
+        // Initialize the LED strip and buffer
+        m_ledBuffer = new AddressableLEDBuffer(VMap.PixelsPerStrip);
+        m_led = new AddressableLED(VMap.PwmPort);
+        m_led.setLength(m_ledBuffer.getLength());
+        m_led.start();
 
-            // Apply a default pattern to the LED strip
-            m_backgroundPattern.applyTo(m_ledBuffer);
+        // Apply a default pattern to the LED strip
+        m_backgroundPattern.applyTo(m_ledBuffer);
 
-            // Setup the warning for when the loop stops
-            m_loopStoppedAlert = new Alert("[LEDs:ERROR] LED update loop failed.", Alert.AlertType.kWarning);
-            m_loopStoppedAlert.set(false);
-        } else {
-            // initialize nothing
-        }
+        // Setup the warning for when the loop stops
+        m_loopStoppedAlert = new Alert("[LEDs:ERROR] LED update loop failed.", Alert.AlertType.kWarning);
+        m_loopStoppedAlert.set(false);
     }
 
     public void updateLedStrip() {
         // If we're not running on a real robot, or we've failed too many times, do nothing.
-        if (!m_isRobotReal || _loopErrorCounter > 3)
+        if (_loopErrorCounter > 3)
             return;
             
         try {
@@ -82,23 +76,14 @@ public class PwmLEDs extends SubsystemBase {
     }
 
     public Command setBackgroundPattern(LEDPattern backgroundPattern) {
-        if (!m_isRobotReal)
-            return runOnce(() -> {});
-
         return runOnce(() -> m_backgroundPattern = backgroundPattern);
     }
 
     public Command setForegroundPattern(LEDPattern foregroundPattern) {
-        if (!m_isRobotReal)
-            return runOnce(() -> {});
-
         return runOnce(() -> m_foregroundPattern = foregroundPattern);
     }
 
     public Command clearForegroundPattern() {
-        if (!m_isRobotReal)
-            return runOnce(() -> {});
-
         return runOnce(() -> m_foregroundPattern = null);
     }
 }

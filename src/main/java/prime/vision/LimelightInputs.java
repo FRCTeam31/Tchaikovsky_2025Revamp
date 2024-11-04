@@ -28,18 +28,18 @@ public class LimelightInputs implements StructSerializable {
     /**
      * The pipeline's latency contribution (ms). Add to "cl" to get total latency.
      */
-    public long PipelineLatencyMs = 0;
+    public int PipelineLatencyMs = 0;
 
     /**
      * Time between the end of the exposure of the middle row of the sensor to 
      * the beginning of the tracking pipeline.
      */
-    public long CapturePipelineLatencyMs = 0;
+    public int CapturePipelineLatencyMs = 0;
 
     /**
      * The total latency of the capture and pipeline processing in milliseconds.
      */
-    public long TotalLatencyMs = 0;
+    public int TotalLatencyMs = 0;
 
     /**
      * ID of the primary in-view AprilTag
@@ -54,42 +54,42 @@ public class LimelightInputs implements StructSerializable {
     /**
      * Robot transform in field-space.
      */
-    public LimelightPose FieldSpaceRobotPose = null;
+    public LimelightPose FieldSpaceRobotPose = new LimelightPose();
 
     /**
      * Robot transform in field-space (alliance driverstation WPILIB origin).
      */
-    public LimelightPose RedAllianceOriginFieldSpaceRobotPose = null;
+    public LimelightPose RedAllianceOriginFieldSpaceRobotPose = new LimelightPose();
 
     /**
      * Robot transform in field-space (alliance driverstation WPILIB origin).
      */
-    public LimelightPose BlueAllianceOriginFieldSpaceRobotPose = null;
+    public LimelightPose BlueAllianceOriginFieldSpaceRobotPose = new LimelightPose();
 
     /**
      * 3D transform of the robot in the coordinate system of the primary in-view AprilTag
      */
-    public LimelightPose TargetSpaceRobotPose = null;
+    public LimelightPose TargetSpaceRobotPose = new LimelightPose();
 
     /**
      * 3D transform of the camera in the coordinate system of the primary in-view AprilTag
      */
-    public LimelightPose TargetSpaceCameraPose = null;
+    public LimelightPose TargetSpaceCameraPose = new LimelightPose();
 
     /**
      * 3D transform of the camera in the coordinate system of the robot
      */
-    public LimelightPose RobotSpaceCameraPose = null;
+    public LimelightPose RobotSpaceCameraPose = new LimelightPose();
 
     /**
      * 3D transform of the primary in-view AprilTag in the coordinate system of the Camera
      */
-    public LimelightPose CameraSpaceTargetPose = null;
+    public LimelightPose CameraSpaceTargetPose = new LimelightPose();
 
     /**
      * 3D transform of the primary in-view AprilTag in the coordinate system of the Robot
      */
-    public LimelightPose RobotSpaceTargetPose = null;
+    public LimelightPose RobotSpaceTargetPose = new LimelightPose();
 
     /** Struct for serialization. */
     public static final LimelightInputsStruct struct = new LimelightInputsStruct();

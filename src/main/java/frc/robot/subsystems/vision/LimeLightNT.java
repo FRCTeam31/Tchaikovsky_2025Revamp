@@ -3,12 +3,9 @@ package frc.robot.subsystems.vision;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -69,22 +66,22 @@ public class LimeLightNT implements AutoCloseable {
     /**
      * The pipeline's latency contribution (ms). Add to "cl" to get total latency.
      */
-    public long getPipelineLatencyMs() {
-        return (long) m_limelightTable.getEntry("tl").getDouble(0.0);
+    public int getPipelineLatencyMs() {
+        return m_limelightTable.getEntry("tl").getNumber(0).intValue();
     }
 
     /**
      * Capture pipeline latency (ms). Time between the end of the exposure of the middle row of the sensor to the beginning of the tracking pipeline.
      */
-    public long getCapturePipelineLatencyMs() {
-        return (long) m_limelightTable.getEntry("cl").getDouble(0.0);
+    public int getCapturePipelineLatencyMs() {
+        return m_limelightTable.getEntry("cl").getNumber(0).intValue();
     }
 
     /**
      * The total latency of the capture and pipeline processing in milliseconds.
      * @return
      */
-    public long getTotalLatencyMs() {
+    public int getTotalLatencyMs() {
         return getPipelineLatencyMs() + getCapturePipelineLatencyMs();
     }
 
@@ -96,7 +93,7 @@ public class LimeLightNT implements AutoCloseable {
      * ID of the primary in-view AprilTag
      */
     public int getApriltagId() {
-        return (int) m_limelightTable.getEntry("tid").getDouble(-1);
+        return m_limelightTable.getEntry("tid").getNumber(0).intValue();
     }
 
     /**
@@ -180,14 +177,14 @@ public class LimeLightNT implements AutoCloseable {
      * Calculates a trust value based on the number of tags in view.
      * @return
      */
-    public Matrix<N3, N1> calculateTrust(double tagCount) {
+    public double[] calculateTrust(double tagCount) {
         // Trust level is a function of the number of tags in view
         // var trustLevel = 0.490956d + Math.pow(9998.51d, -(6.95795d * tagCount));
 
         var trustLevel = tagCount >= 2.0 ? 2 : 20;
 
         // X Y Z trust levels (never trust Z)
-        return VecBuilder.fill(trustLevel, trustLevel, 999999);
+        return VecBuilder.fill(trustLevel, trustLevel, 999999).getData();
     }
 
     //#endregion

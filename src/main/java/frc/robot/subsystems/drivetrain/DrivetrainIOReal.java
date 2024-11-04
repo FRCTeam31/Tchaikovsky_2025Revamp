@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.Robot;
+import frc.robot.maps.DriveMap;
 import frc.robot.subsystems.drivetrain.swervemodule.*;
 
 @Logged(strategy = Strategy.OPT_IN)

@@ -13,18 +13,19 @@ import prime.vision.LimelightInputs;
 public class VisionSubsystem extends SubsystemBase {
     private LimeLightNT[] m_limelights;
 
-    @Logged(importance = Logged.Importance.CRITICAL)
     private LimelightInputs[] m_limelightInputs;
 
     public VisionSubsystem(String[] tableNames) {
         setName("VisionSubsystem");
+        SmartDashboard.putNumber("LimelightCount", tableNames.length);
         var defaultInstance = NetworkTableInstance.getDefault();
+
         m_limelights = new LimeLightNT[tableNames.length];
+        m_limelightInputs = new LimelightInputs[tableNames.length];
         for (int i = 0; i < tableNames.length; i++) {
             m_limelights[i] = new LimeLightNT(defaultInstance, tableNames[i]);
+            m_limelightInputs[i] = m_limelights[i].getInputs();
         }
-
-        m_limelightInputs = new LimelightInputs[tableNames.length];
     }
 
     /**
@@ -38,6 +39,7 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * Gets all limelight inputs
      */
+    @Logged(name = "LimelightInputs", importance = Logged.Importance.CRITICAL)
     public LimelightInputs[] getAllLimelightInputs() {
         return m_limelightInputs;
     }
