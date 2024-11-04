@@ -33,9 +33,9 @@ public class LimelightInputsStruct implements Struct<LimelightInputs> {
         return "Rotation2d targetHorizontalOffset;"+
         "Rotation2d targetVerticalOffset;"+
         "double targetArea;"+
-        "int64 pipelineLatencyMs;"+
-        "int64 capturePipelineLatencyMs;"+
-        "int64 totalLatencyMs;"+
+        "int32 pipelineLatencyMs;"+
+        "int32 capturePipelineLatencyMs;"+
+        "int32 totalLatencyMs;"+
         "int32 apriltagId;"+
         "double tagCount;"+
         "LimelightPose fieldSpaceRobotPose;"+

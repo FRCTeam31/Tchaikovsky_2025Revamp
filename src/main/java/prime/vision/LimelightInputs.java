@@ -1,7 +1,10 @@
 package prime.vision;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.util.struct.StructSerializable;
 
 @Logged
@@ -11,7 +14,7 @@ public class LimelightInputs implements StructSerializable {
      * Horizontal Offset From Crosshair To Target 
      * (LL1: -27 degrees to 27 degrees / LL2: -29.8 to 29.8 degrees)
      */
-    public Rotation2d TargetHorizontalOffset = new Rotation2d();
+    public Rotation2d TargetHorizontalOffset = new Rotation2d(Math.PI);
     
     /**
      * Vertical Offset From Crosshair To Target 
@@ -27,18 +30,18 @@ public class LimelightInputs implements StructSerializable {
     /**
      * The pipeline's latency contribution (ms). Add to "cl" to get total latency.
      */
-    public int PipelineLatencyMs = 0;
+    public int PipelineLatencyMs = 1;
 
     /**
      * Time between the end of the exposure of the middle row of the sensor to 
      * the beginning of the tracking pipeline.
      */
-    public int CapturePipelineLatencyMs = 0;
+    public int CapturePipelineLatencyMs = 2;
 
     /**
      * The total latency of the capture and pipeline processing in milliseconds.
      */
-    public int TotalLatencyMs = 0;
+    public int TotalLatencyMs = 3;
 
     /**
      * ID of the primary in-view AprilTag
@@ -48,12 +51,14 @@ public class LimelightInputs implements StructSerializable {
     /**
      * Returns the number of AprilTags in the image.
      */
-    public double TagCount = 0.0;
+    public double TagCount = 1.1;
 
     /**
      * Robot transform in field-space.
      */
-    public LimelightPose FieldSpaceRobotPose = new LimelightPose();
+    public LimelightPose FieldSpaceRobotPose = new LimelightPose(
+        new Pose3d(1, 2, 3, new Rotation3d(Units.Degrees.of(1), Units.Degrees.of(2), Units.Degrees.of(3))),
+        new double[] { 1, 1, 2.5, 3, 4 });
 
     /**
      * Robot transform in field-space (alliance driverstation WPILIB origin).

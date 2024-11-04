@@ -9,14 +9,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.DriverDashboard;
 import frc.robot.maps.DriveMap;
 import prime.vision.LimelightInputs;
+import prime.vision.LimelightPose;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class VisionSubsystem extends SubsystemBase {
     private LimeLightNT[] m_limelights;
 
     private LimelightInputs[] m_limelightInputs;
-    @Logged(name = "LimelightInputCount", importance = Logged.Importance.CRITICAL)
-    private int limelightInputCount;
+    private LimelightPose[] m_limelightRobotPoses;
+    @Logged(name = "ArrayElementCount", importance = Logged.Importance.CRITICAL)
+    private int arrayElementCount;
 
     public VisionSubsystem() {
         setName("VisionSubsystem");
@@ -27,10 +29,14 @@ public class VisionSubsystem extends SubsystemBase {
             new LimeLightNT(defaultInstance, DriveMap.LimelightRearName)
         };
         m_limelightInputs = new LimelightInputs[] {
-            m_limelights[0].getInputs(),
-            m_limelights[1].getInputs()
+            new LimelightInputs(),
+            new LimelightInputs()
         };
-        limelightInputCount = m_limelightInputs.length;
+        m_limelightRobotPoses = new LimelightPose[] {
+            m_limelightInputs[0].FieldSpaceRobotPose,
+            m_limelightInputs[1].FieldSpaceRobotPose
+        };
+        arrayElementCount = m_limelightInputs.length;
     }
 
     /**
@@ -47,6 +53,14 @@ public class VisionSubsystem extends SubsystemBase {
     @Logged(name = "LimelightInputs", importance = Logged.Importance.CRITICAL)
     public LimelightInputs[] getAllLimelightInputs() {
         return m_limelightInputs;
+    }
+
+    /**
+     * Gets all limelight inputs
+     */
+    @Logged(name = "LimelightPoses", importance = Logged.Importance.CRITICAL)
+    public LimelightPose[] getAllFieldRobotPoses() {
+        return m_limelightRobotPoses;
     }
 
     /**
@@ -125,7 +139,7 @@ public class VisionSubsystem extends SubsystemBase {
         // for (int i = 0; i < m_limelights.length; i++) {
         //     m_limelightInputs[i] = m_limelights[i].getInputs();
         // }
-        limelightInputCount = m_limelightInputs.length;
+        arrayElementCount = m_limelightInputs.length;
 
         // Update Dashboard & logging
         var frontInputs = getLimelightInputs(0);
