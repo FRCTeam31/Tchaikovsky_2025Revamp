@@ -49,7 +49,7 @@ public class Container {
     try {
       DriverDashboard.init(isReal);
       m_driverController = new PrimeXboxController(Controls.DRIVER_PORT);
-      m_operatorController = new PrimeXboxController(Controls.OPERATOR_PORT);
+      // m_operatorController = new PrimeXboxController(Controls.OPERATOR_PORT);
 
       // Create new subsystems
       LEDs = new PwmLEDs();
@@ -115,7 +115,7 @@ public class Container {
     // Controls for Driving
     m_driverController.a().onTrue(Drivetrain.resetGyroCommand());
     Drivetrain.setDefaultCommand(
-      Drivetrain.defaultDriveCommand(
+      Drivetrain.driveRobotRelativeCommand(
         m_driverController.getSwerveControlProfile(
           HolonomicControlStyle.Drone,
           DriveMap.DriveDeadband,

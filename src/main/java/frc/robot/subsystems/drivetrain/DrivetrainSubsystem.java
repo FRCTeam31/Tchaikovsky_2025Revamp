@@ -163,6 +163,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_outputs.DesiredChassisSpeeds = desiredChassisSpeeds;
   }
 
+  /**
+   * Drives field-relative using a ChassisSpeeds
+   * @param desiredChassisSpeeds The desired field-relative speeds of the robot
+   */
+  private void driveFieldRelative(ChassisSpeeds desiredChassisSpeeds) {
+    m_outputs.ControlMode = DrivetrainControlMode.kFieldRelative;
+    m_outputs.DesiredChassisSpeeds = desiredChassisSpeeds;
+  }
+
   private void drivePathPlanner(ChassisSpeeds pathSpeeds) {
     m_outputs.ControlMode = DrivetrainControlMode.kPathFollowing;
     m_outputs.DesiredChassisSpeeds = pathSpeeds;
@@ -247,7 +256,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * Creates a command that drives the robot using input controls
    * @param controlSuppliers Controller input suppliers
    */
-  public Command defaultDriveCommand(SwerveControlSuppliers controlSuppliers) {
+  public Command driveFieldRelativeCommand(SwerveControlSuppliers controlSuppliers) {
     return this.run(() -> {
         // If the driver is trying to rotate the robot, disable snap-to control
         if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
@@ -261,19 +270,49 @@ public class DrivetrainSubsystem extends SubsystemBase {
         var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
 
         // Build chassis speeds
-        ChassisSpeeds robotRelativeSpeeds;
         var invert = Robot.onRedAlliance() ? -1 : 1;
 
         // Drive the robot with the driver-relative inputs, converted to field-relative based on which side we're on
-        robotRelativeSpeeds =
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-            (inputYMPS * invert), // Use Y as X for field-relative
-            (inputXMPS * invert), // Use X as Y for field-relative
-            inputRotationRadiansPS,
-            m_inputs.GyroAngle
-          );
+        var fieldChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+          (inputYMPS * invert), // Use Y as X for field-relative
+          (inputXMPS * invert), // Use X as Y for field-relative
+          inputRotationRadiansPS,
+          m_inputs.GyroAngle
+        );
 
-        driveRobotRelative(robotRelativeSpeeds);
+        driveFieldRelative(fieldChassisSpeeds);
+      });
+  }
+
+  /**
+   * Creates a command that drives the robot using input controls
+   * @param controlSuppliers Controller input suppliers
+   */
+  public Command driveRobotRelativeCommand(SwerveControlSuppliers controlSuppliers) {
+    return this.run(() -> {
+        // If the driver is trying to rotate the robot, disable snap-to control
+        if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
+          setSnapToEnabled(false);
+          m_clearForegroundPatternFunc.run();
+        }
+
+        // Convert inputs to MPS
+        var inputXMPS = controlSuppliers.X.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+        var inputYMPS = -controlSuppliers.Y.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+        var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
+
+        // Build chassis speeds
+        var invert = Robot.onRedAlliance() ? -1 : 1;
+
+        // Drive the robot with the driver-relative inputs, converted to field-relative based on which side we're on
+        var robotChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+          (inputYMPS * invert), // Use Y as X for field-relative
+          (inputXMPS * invert), // Use X as Y for field-relative
+          inputRotationRadiansPS,
+          m_inputs.GyroAngle
+        );
+
+        driveRobotRelative(robotChassisSpeeds);
       });
   }
 

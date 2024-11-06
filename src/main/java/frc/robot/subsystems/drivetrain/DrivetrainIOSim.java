@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import frc.robot.Robot;
 import frc.robot.maps.DriveMap;
-import frc.robot.subsystems.drivetrain.swervemodule.ISwerveModuleIO;
 import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleIOInputs;
 import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleIOOutputs;
 import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleIOSim;
@@ -27,7 +26,7 @@ public class DrivetrainIOSim implements IDrivetrainIO {
   private DrivetrainIOInputs m_inputs;
 
   private AnalogGyroSim m_gyroSim;
-  private ISwerveModuleIO m_frontLeftModule, m_frontRightModule, m_rearLeftModule, m_rearRightModule;
+  private SwerveModuleIOSim m_frontLeftModule, m_frontRightModule, m_rearLeftModule, m_rearRightModule;
 
   private SwerveDriveKinematics m_kinematics;
   private SwerveDrivePoseEstimator m_poseEstimator;
@@ -81,13 +80,13 @@ public class DrivetrainIOSim implements IDrivetrainIO {
     m_moduleInputs[2] = m_rearLeftModule.getInputs();
     m_moduleInputs[3] = m_rearRightModule.getInputs();
 
-    m_inputs.GyroAngle = Rotation2d.fromDegrees(m_gyroSim.getAngle());
-    // m_inputs.GyroAccelX = m_gyro.getAccelerationX().getValueAsDouble();
-    // m_inputs.GyroAccelY = m_gyro.getAccelerationY().getValueAsDouble();
-    // m_inputs.GyroAccelZ = m_gyro.getAccelerationZ().getValueAsDouble();
     m_inputs.RobotRelativeChassisSpeeds = m_kinematics.toChassisSpeeds(getModuleStates());
+    m_gyroSim.setAngle(new Rotation2d(Rotation2d.fromDegrees(m_gyroSim.getAngle()).getRadians() + m_inputs.RobotRelativeChassisSpeeds.omegaRadiansPerSecond * 0.02).getDegrees());
+
     var modulePositions = getModulePositions();
     m_inputs.EstimatedRobotPose = m_poseEstimator.update(m_inputs.GyroAngle, modulePositions);
+
+    m_inputs.GyroAngle = Rotation2d.fromDegrees(m_gyroSim.getAngle());
 
     return m_inputs;
   }
