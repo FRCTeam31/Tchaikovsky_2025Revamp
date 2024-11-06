@@ -65,8 +65,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    var disabledPattern = LEDPattern.solid(onRedAlliance() ? Color.kRed : Color.kBlue)
-      .breathe(Units.Seconds.of(2.0));
+    DataLogManager.log("Robot disabled");
+    var disabledPattern = LEDPattern.solid(getAllianceColor()).breathe(Units.Seconds.of(2.0));
     m_robotContainer.LEDs.setBackgroundPattern(disabledPattern);
     m_robotContainer.LEDs.clearForegroundPattern();
   }
@@ -125,6 +125,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
+    DataLogManager.log("Teleop Enabled");
     if (m_autonomousCommand != null) {
       // Cancel the auto command if it's still running
       m_autonomousCommand.cancel();
@@ -162,5 +163,16 @@ public class Robot extends TimedRobot {
     var alliance = DriverStation.getAlliance();
 
     return alliance.isPresent() && alliance.get() == Alliance.Blue;
+  }
+
+  public static Color getAllianceColor() {
+    var alliance = DriverStation.getAlliance();
+    Color allianceColor = Color.kGhostWhite;
+    if (alliance.isPresent())
+      allianceColor = alliance.get() == Alliance.Red 
+        ? Color.kRed 
+        : Color.kBlue;
+
+    return allianceColor;
   }
 }

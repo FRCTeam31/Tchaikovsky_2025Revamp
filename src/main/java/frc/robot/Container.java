@@ -11,9 +11,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -40,6 +38,7 @@ public class Container {
   // public Intake Intake;
   // public Climbers Climbers;
   // public PwmLEDs LEDs;
+  @Logged(name="LEDs", importance = Importance.CRITICAL)
   public PwmLEDs LEDs;
   // public Compressor Compressor;
 

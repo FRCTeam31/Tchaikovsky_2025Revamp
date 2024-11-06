@@ -29,6 +29,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import prime.control.SwerveControlSuppliers;
@@ -80,7 +81,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   @Logged(importance = Logged.Importance.CRITICAL)
   public boolean WithinPoseEstimationVelocity = true;
 
-  private LEDPattern m_snapOnTargetPattern = LEDPattern.solid(Color.kGreen);
+  private LEDPattern m_snapOnTargetPattern = LEDPattern.solid(Color.kGreen)
+    .blink(Units.Seconds.of(0.1));
   private LEDPattern m_snapOffTargetPattern = LEDPattern.steps(Map.of(0.0, Color.kRed, 0.25, Color.kBlack))
     .scrollAtRelativeSpeed(Units.Hertz.of(2));
 
@@ -234,10 +236,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // if (EstimatePoseUsingRearCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 1);
 
     // Update LEDs
-    if (m_inputs.SnapIsOnTarget) {
-      m_setForegroundPatternFunc.accept(m_snapOnTargetPattern);
-    } else {
-      m_setForegroundPatternFunc.accept(m_snapOffTargetPattern);
+    if (m_outputs.SnapEnabled) {
+      if (m_inputs.SnapIsOnTarget) {
+        m_setForegroundPatternFunc.accept(m_snapOnTargetPattern);
+      } else {
+        m_setForegroundPatternFunc.accept(m_snapOffTargetPattern);
+      }
     }
 
     // Send outputs to the drive IO
