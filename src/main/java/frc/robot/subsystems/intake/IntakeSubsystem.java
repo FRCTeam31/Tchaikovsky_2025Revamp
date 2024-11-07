@@ -1,8 +1,7 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.intake;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
@@ -15,7 +14,7 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 import prime.control.PrimePIDConstants;
 
-public class Intake extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
 
   public static class VMap {
 
@@ -31,23 +30,13 @@ public class Intake extends SubsystemBase {
     public static final int BottomLimitSwitchChannel = 5;
   }
 
-  private DigitalInput m_topLimitSwitch;
-  private DigitalInput m_bottomLimitSwitch;
-
-  private CANSparkMax m_rollers;
-  private CANSparkMax m_angleLeft;
-  private CANSparkMax m_angleRight;
-
-  private PIDController m_anglePid;
-  private double m_angleStartPoint;
-  public boolean m_angleToggledIn;
-  private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+  private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth); //output
 
   /**
    * Creates a new Intake subsystem
    * @param robotConfig
    */
-  public Intake() {
+  public IntakeSubsystem() {
     setName("Intake");
     m_topLimitSwitch = new DigitalInput(VMap.TopLimitSwitchChannel);
     m_bottomLimitSwitch = new DigitalInput(VMap.BottomLimitSwitchChannel);
