@@ -33,7 +33,6 @@ public class Robot extends TimedRobot {
     // Initialize the robot container
     m_robotContainer = new RobotContainer(isReal());
 
-    DataLogManager.start();
 
   }
 
