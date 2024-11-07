@@ -14,12 +14,14 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.LEDPattern.GradientType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.PwmLEDs;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class Robot extends TimedRobot {
@@ -65,8 +67,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
-    var disabledPattern = LEDPattern.solid(onRedAlliance() ? Color.kRed : Color.kBlue)
-      .breathe(Units.Seconds.of(2.0));
+    DataLogManager.log("Robot disabled");
+    var disabledPattern = LEDPattern.solid(getAllianceColor()).breathe(Units.Seconds.of(2.0));
     m_robotContainer.LEDs.setBackgroundPattern(disabledPattern);
     m_robotContainer.LEDs.clearForegroundPattern();
   }
@@ -87,9 +89,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    var autoPattern = LEDPattern.solid(onRedAlliance() ? Color.kRed : Color.kBlue)
-      .blink(Units.Seconds.of(0.25));
-    m_robotContainer.LEDs.setBackgroundPattern(autoPattern);
+    var autoPattern = LEDPattern.gradient(GradientType.kDiscontinuous, getAllianceColor(), Color.kBlack)
+      .offsetBy(-PwmLEDs.VMap.PixelsPerStrip / 2)
+      .scrollAtRelativeSpeed(Units.Hertz.of(2))
+      .reversed();
+    var combinedPattern = LEDPattern.gradient(GradientType.kDiscontinuous, getAllianceColor(), Color.kBlack)
+      .offsetBy(PwmLEDs.VMap.PixelsPerStrip / 2)
+      .scrollAtRelativeSpeed(Units.Hertz.of(2))
+      .blend(autoPattern);
+    m_robotContainer.LEDs.setBackgroundPattern(combinedPattern);
     m_robotContainer.LEDs.clearForegroundPattern();
 
     // Cancel any auto command that's still running and reset the subsystem states
@@ -125,6 +133,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
+    DataLogManager.log("Teleop Enabled");
     if (m_autonomousCommand != null) {
       // Cancel the auto command if it's still running
       m_autonomousCommand.cancel();
@@ -135,8 +144,7 @@ public class Robot extends TimedRobot {
     }
 
     // Set teleop LED pattern
-    var telePattern = LEDPattern.solid(onRedAlliance() ? Color.kRed : Color.kBlue)
-      .scrollAtRelativeSpeed(Units.Hertz.of(2));
+    var telePattern = LEDPattern.solid(getAllianceColor()).scrollAtRelativeSpeed(Units.Hertz.of(2));
     m_robotContainer.LEDs.setBackgroundPattern(telePattern);
     m_robotContainer.LEDs.clearForegroundPattern();
 
@@ -162,5 +170,16 @@ public class Robot extends TimedRobot {
     var alliance = DriverStation.getAlliance();
 
     return alliance.isPresent() && alliance.get() == Alliance.Blue;
+  }
+
+  public static Color getAllianceColor() {
+    var alliance = DriverStation.getAlliance();
+    Color allianceColor = Color.kGhostWhite;
+    if (alliance.isPresent())
+      allianceColor = alliance.get() == Alliance.Red 
+        ? Color.kRed 
+        : Color.kBlue;
+
+    return allianceColor;
   }
 }

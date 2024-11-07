@@ -1,16 +1,19 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Dimensionless;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+@Logged(strategy = Logged.Strategy.OPT_IN)
 public class PwmLEDs extends SubsystemBase {
     public static class VMap {
         public static final int PwmPort = 9;
@@ -20,9 +23,11 @@ public class PwmLEDs extends SubsystemBase {
 
     private AddressableLED m_led;
     private AddressableLEDBuffer m_ledBuffer;
-    private byte _loopErrorCounter = 0;
+    @Logged(name = "LoopErrorCounter", importance = Logged.Importance.CRITICAL)
+    public byte _loopErrorCounter = 0;
 
-    private LEDPattern m_backgroundPattern = LEDPattern.solid(Color.kOrange);
+    private LEDPattern m_backgroundPattern = LEDPattern.solid(Color.kGhostWhite)
+        .breathe(Units.Seconds.of(4));
     private LEDPattern m_foregroundPattern = null;
 
     private Alert m_loopStoppedAlert;
@@ -63,6 +68,7 @@ public class PwmLEDs extends SubsystemBase {
         } catch (Exception e) {
             // If we fail to update the LEDs, report the error and increment the error counter
             _loopErrorCounter++;
+            DataLogManager.log("[LEDs:ERROR] Failed to update LEDs: " + e.getMessage());
             DriverStation.reportError("[LEDs:ERROR] Failed to update LEDs: " + e.getMessage(), e.getStackTrace());
 
             // If we've failed too many times, stop the loop and alert the user
@@ -75,15 +81,34 @@ public class PwmLEDs extends SubsystemBase {
         }
     }
 
-    public Command setBackgroundPattern(LEDPattern backgroundPattern) {
-        return runOnce(() -> m_backgroundPattern = backgroundPattern);
+    public void setBackgroundPattern(LEDPattern backgroundPattern) {
+        if (m_backgroundPattern != backgroundPattern) {
+            m_backgroundPattern = backgroundPattern;
+        }
     }
 
-    public Command setForegroundPattern(LEDPattern foregroundPattern) {
-        return runOnce(() -> m_foregroundPattern = foregroundPattern);
+    public void setForegroundPattern(LEDPattern foregroundPattern) {
+        if (DriverStation.isEnabled() && m_foregroundPattern != foregroundPattern) {
+            m_foregroundPattern = foregroundPattern;
+        }
     }
 
-    public Command clearForegroundPattern() {
-        return runOnce(() -> m_foregroundPattern = null);
+    public void clearForegroundPattern() {
+        if (m_foregroundPattern != null)
+            m_foregroundPattern = null;
+    }
+
+    public Command setBackgroundPatternCommand(LEDPattern backgroundPattern) {
+        return runOnce(() -> setBackgroundPattern(backgroundPattern))
+            .ignoringDisable(true);
+    }
+
+    public Command setForegroundPatternCommand(LEDPattern foregroundPattern) {
+        return runOnce(() -> setForegroundPattern(foregroundPattern))
+            .ignoringDisable(true); // (only allowed when enabled)
+    }
+
+    public Command clearForegroundPatternCommand() {
+        return runOnce(() -> clearForegroundPattern()).ignoringDisable(true);
     }
 }

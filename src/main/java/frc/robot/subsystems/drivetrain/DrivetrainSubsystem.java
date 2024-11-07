@@ -29,6 +29,7 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import prime.control.SwerveControlSuppliers;
@@ -80,7 +81,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   @Logged(importance = Logged.Importance.CRITICAL)
   public boolean WithinPoseEstimationVelocity = true;
 
-  private LEDPattern m_snapOnTargetPattern = LEDPattern.solid(Color.kGreen);
+  private LEDPattern m_snapOnTargetPattern = LEDPattern.solid(Color.kGreen)
+    .blink(Units.Seconds.of(0.1));
   private LEDPattern m_snapOffTargetPattern = LEDPattern.steps(Map.of(0.0, Color.kRed, 0.25, Color.kBlack))
     .scrollAtRelativeSpeed(Units.Hertz.of(2));
 
@@ -163,6 +165,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_outputs.DesiredChassisSpeeds = desiredChassisSpeeds;
   }
 
+  /**
+   * Drives field-relative using a ChassisSpeeds
+   * @param desiredChassisSpeeds The desired field-relative speeds of the robot
+   */
+  private void driveFieldRelative(ChassisSpeeds desiredChassisSpeeds) {
+    m_outputs.ControlMode = DrivetrainControlMode.kFieldRelative;
+    m_outputs.DesiredChassisSpeeds = desiredChassisSpeeds;
+  }
+
   private void drivePathPlanner(ChassisSpeeds pathSpeeds) {
     m_outputs.ControlMode = DrivetrainControlMode.kPathFollowing;
     m_outputs.DesiredChassisSpeeds = pathSpeeds;
@@ -225,10 +236,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // if (EstimatePoseUsingRearCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 1);
 
     // Update LEDs
-    if (m_inputs.SnapIsOnTarget) {
-      m_setForegroundPatternFunc.accept(m_snapOnTargetPattern);
-    } else {
-      m_setForegroundPatternFunc.accept(m_snapOffTargetPattern);
+    if (m_outputs.SnapEnabled) {
+      if (m_inputs.SnapIsOnTarget) {
+        m_setForegroundPatternFunc.accept(m_snapOnTargetPattern);
+      } else {
+        m_setForegroundPatternFunc.accept(m_snapOffTargetPattern);
+      }
     }
 
     // Send outputs to the drive IO
@@ -247,7 +260,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * Creates a command that drives the robot using input controls
    * @param controlSuppliers Controller input suppliers
    */
-  public Command defaultDriveCommand(SwerveControlSuppliers controlSuppliers) {
+  public Command driveFieldRelativeCommand(SwerveControlSuppliers controlSuppliers) {
     return this.run(() -> {
         // If the driver is trying to rotate the robot, disable snap-to control
         if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
@@ -261,19 +274,49 @@ public class DrivetrainSubsystem extends SubsystemBase {
         var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
 
         // Build chassis speeds
-        ChassisSpeeds robotRelativeSpeeds;
         var invert = Robot.onRedAlliance() ? -1 : 1;
 
         // Drive the robot with the driver-relative inputs, converted to field-relative based on which side we're on
-        robotRelativeSpeeds =
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-            (inputYMPS * invert), // Use Y as X for field-relative
-            (inputXMPS * invert), // Use X as Y for field-relative
-            inputRotationRadiansPS,
-            m_inputs.GyroAngle
-          );
+        var fieldChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+          (inputYMPS * invert), // Use Y as X for field-relative
+          (inputXMPS * invert), // Use X as Y for field-relative
+          inputRotationRadiansPS,
+          m_inputs.GyroAngle
+        );
 
-        driveRobotRelative(robotRelativeSpeeds);
+        driveFieldRelative(fieldChassisSpeeds);
+      });
+  }
+
+  /**
+   * Creates a command that drives the robot using input controls
+   * @param controlSuppliers Controller input suppliers
+   */
+  public Command driveRobotRelativeCommand(SwerveControlSuppliers controlSuppliers) {
+    return this.run(() -> {
+        // If the driver is trying to rotate the robot, disable snap-to control
+        if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
+          setSnapToEnabled(false);
+          m_clearForegroundPatternFunc.run();
+        }
+
+        // Convert inputs to MPS
+        var inputXMPS = controlSuppliers.X.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+        var inputYMPS = -controlSuppliers.Y.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+        var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
+
+        // Build chassis speeds
+        var invert = Robot.onRedAlliance() ? -1 : 1;
+
+        // Drive the robot with the driver-relative inputs, converted to field-relative based on which side we're on
+        var robotChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+          (inputYMPS * invert), // Use Y as X for field-relative
+          (inputXMPS * invert), // Use X as Y for field-relative
+          inputRotationRadiansPS,
+          m_inputs.GyroAngle
+        );
+
+        driveRobotRelative(robotChassisSpeeds);
       });
   }
 

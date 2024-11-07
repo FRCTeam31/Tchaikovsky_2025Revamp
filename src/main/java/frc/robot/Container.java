@@ -11,9 +11,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -40,6 +38,7 @@ public class Container {
   // public Intake Intake;
   // public Climbers Climbers;
   // public PwmLEDs LEDs;
+  @Logged(name="LEDs", importance = Importance.CRITICAL)
   public PwmLEDs LEDs;
   // public Compressor Compressor;
 
@@ -49,7 +48,7 @@ public class Container {
     try {
       DriverDashboard.init(isReal);
       m_driverController = new PrimeXboxController(Controls.DRIVER_PORT);
-      m_operatorController = new PrimeXboxController(Controls.OPERATOR_PORT);
+      // m_operatorController = new PrimeXboxController(Controls.OPERATOR_PORT);
 
       // Create new subsystems
       LEDs = new PwmLEDs();
@@ -115,7 +114,7 @@ public class Container {
     // Controls for Driving
     m_driverController.a().onTrue(Drivetrain.resetGyroCommand());
     Drivetrain.setDefaultCommand(
-      Drivetrain.defaultDriveCommand(
+      Drivetrain.driveRobotRelativeCommand(
         m_driverController.getSwerveControlProfile(
           HolonomicControlStyle.Drone,
           DriveMap.DriveDeadband,
