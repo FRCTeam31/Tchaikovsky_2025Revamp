@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
@@ -19,11 +19,13 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.shooter.IShooterIO.ShooterIOInputs;
+import frc.robot.subsystems.shooter.IShooterIO.ShooterIOOutputs;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class Shooter extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase {
 
   public static class VMap {
 
@@ -36,11 +38,6 @@ public class Shooter extends SubsystemBase {
     public static final int ElevationSolenoidReverseChannel = 7;
   }
 
-  private TalonFX m_talonFX;
-  private VictorSPX m_victorSPX;
-  private DoubleSolenoid m_elevationSolenoid;
-  private DigitalInput m_noteDetector;
-
   private Runnable m_clearForegroundPatternFunc;
   private Consumer<LEDPattern> m_setForegroundPatternFunc;
   private LEDPattern m_elevatorUpLEDPattern = LEDPattern.solid(Color.kWhite);
@@ -49,37 +46,23 @@ public class Shooter extends SubsystemBase {
   private LEDPattern m_noteDetectedLEDPattern = LEDPattern.solid(Color.kOrange)
     .blink(Units.Seconds.of(0.2));
 
+  private IShooterIO shooterIO;
+  private ShooterIOInputs shooterInputs = new ShooterIOInputs();
+  private ShooterIOOutputs shooterOutputs = new ShooterIOOutputs();
+
   // #endregion
 
   /**
    * Creates a new Shooter with a given configuration
    * @param config
    */
-  public Shooter(
+  public ShooterSubsystem(
     Runnable restoreLEDPersistentPatternFunc,
     Consumer<LEDPattern> setLEDTemporaryPatternFunc
   ) {
     setName("Shooter");
 
-    m_talonFX = new TalonFX(VMap.TalonFXCanID);
-    var talonConfig = new TalonFXConfiguration();
-    talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    m_talonFX.getConfigurator().apply(talonConfig);
-    m_talonFX.setNeutralMode(NeutralModeValue.Brake);
 
-    m_victorSPX = new VictorSPX(VMap.VictorSPXCanID);
-    m_victorSPX.configFactoryDefault();
-    m_victorSPX.setNeutralMode(NeutralMode.Brake);
-
-    m_elevationSolenoid =
-      new DoubleSolenoid(
-        30,
-        PneumaticsModuleType.REVPH,
-        VMap.ElevationSolenoidForwardChannel,
-        VMap.ElevationSolenoidReverseChannel
-      );
-
-    m_noteDetector = new DigitalInput(VMap.NoteDetectorDIOChannel);
 
     m_clearForegroundPatternFunc = restoreLEDPersistentPatternFunc;
     m_setForegroundPatternFunc = setLEDTemporaryPatternFunc;
@@ -92,20 +75,24 @@ public class Shooter extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    m_talonFX.set(speed);
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed * 3);
+    // m_talonFX.set(speed);
+    // m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed * 3);
+
+    shooterOutputs.talon_speed = speed;
+    shooterOutputs.victor_speed = speed * 3;
   }
 
   public void runGreenWheel(double speed) {
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed);
+    //m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed);
+    shooterOutputs.victor_speed = speed;
   }
 
   /**
    * Stops the shooter motors
    */
   public void stopMotors() {
-    m_talonFX.stopMotor();
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
+    shooterIO.StopMotors();
+    
     m_clearForegroundPatternFunc.run();
   }
 
@@ -114,11 +101,13 @@ public class Shooter extends SubsystemBase {
    * @return
    */
   public boolean isNoteLoaded() {
-    return !m_noteDetector.get();
+    // return !m_noteDetector.get();
+    return shooterInputs.noteDetector_state;
   }
 
   public void setElevator(Value value) {
-    m_elevationSolenoid.set(value);
+    // m_elevationSolenoid.set(value);
+    shooterOutputs.elevationSolenoid_value = value;
   }
 
   public void setElevatorUp() {

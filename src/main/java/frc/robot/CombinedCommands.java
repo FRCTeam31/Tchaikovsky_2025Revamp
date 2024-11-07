@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 public class CombinedCommands {
     /**
      * Runs a sequence to score a note in the speaker
      * @return
      */
-    public SequentialCommandGroup scoreInSpeakerSequentialGroup(Shooter shooter, Intake intake) {
+    public SequentialCommandGroup scoreInSpeakerSequentialGroup(ShooterSubsystem shooter, Intake intake) {
       return shooter
         .startShootingNoteCommand()
         .andThen(new WaitCommand(0.75))
@@ -29,7 +29,7 @@ public class CombinedCommands {
      * Runs a sequence to load a note into the shooter for scoring in the amp
      * @return
      */
-    public SequentialCommandGroup loadNoteForAmp(Shooter shooter, Intake intake) {
+    public SequentialCommandGroup loadNoteForAmp(ShooterSubsystem shooter, Intake intake) {
       return Commands
         .runOnce(() -> intake.runIntakeRollers(-0.7)) // Eject from the intake
         .alongWith(Commands.runOnce(() -> shooter.runShooter(0.1))) // Load into the shooter
@@ -42,7 +42,7 @@ public class CombinedCommands {
      * Runs a sequence to stop both the shooter and intake
      * @return
      */
-    public SequentialCommandGroup stopShooterAndIntakeCommand(Shooter shooter, Intake intake) {
+    public SequentialCommandGroup stopShooterAndIntakeCommand(ShooterSubsystem shooter, Intake intake) {
       return shooter.stopMotorsCommand().andThen(intake.stopRollersCommand());
     }
 
@@ -50,7 +50,7 @@ public class CombinedCommands {
      * Returns a map of named commands that use multiple subsystems
      * @return
      */
-    public Map<String, Command> getNamedCommands(Shooter shooter, Intake intake) {
+    public Map<String, Command> getNamedCommands(ShooterSubsystem shooter, Intake intake) {
       return Map.of(
         "Score_In_Speaker",
         scoreInSpeakerSequentialGroup(shooter, intake),
