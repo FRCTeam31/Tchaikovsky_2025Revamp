@@ -3,8 +3,7 @@ package frc.robot.subsystems.drivetrain;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Logged.Strategy;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
@@ -20,34 +19,24 @@ import edu.wpi.first.math.numbers.N3;
 import frc.robot.Robot;
 import frc.robot.subsystems.drivetrain.swervemodule.*;
 
-@Logged(strategy = Strategy.OPT_IN)
 public class DrivetrainIOReal implements IDrivetrainIO {
 
   private DrivetrainIOInputs m_inputs;
 
   private Pigeon2 m_gyro;
 
-  @Logged(name = "SnapAnglePIDController", importance = Logged.Importance.CRITICAL)
   private PIDController m_snapAngleController;
   private SwerveDriveKinematics m_kinematics;
   private SwerveDrivePoseEstimator m_poseEstimator;
 
   private ISwerveModuleIO m_frontLeftModule, m_frontRightModule, m_rearLeftModule, m_rearRightModule;
-  @Logged(name = "FrontLeftInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_frontLeftInputs;
-  @Logged(name = "FrontRightInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_frontRightInputs;
-  @Logged(name = "RearLeftInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_rearLeftInputs;
-  @Logged(name = "RearRightInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_rearRightInputs;
-  @Logged(name = "FrontLeftOutputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOOutputs m_frontLeftOutputs;
-  @Logged(name = "FrontRightOutputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOOutputs m_frontRightOutputs;
-  @Logged(name = "RearLeftOutputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOOutputs m_rearLeftOutputs;
-  @Logged(name = "RearRightOutputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOOutputs m_rearRightOutputs;
 
   public DrivetrainIOReal() {
