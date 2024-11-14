@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.climbers;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
@@ -163,11 +163,16 @@ public class Climbers extends SubsystemBase {
     DriverDashboard.ClimberControlsActiveBox.setBoolean(m_climbControlsEnabled);
 
     // Level2 Logging
+    
     SmartDashboard.putBoolean("Climbers/ControlsEnabled", m_climbControlsEnabled);
+    // outputs
     SmartDashboard.putNumber("Climbers/LeftMotorOutput", m_leftVictorSPX.getMotorOutputPercent());
     SmartDashboard.putNumber("Climbers/RightMotorOutput", m_rightVictorSPX.getMotorOutputPercent());
+    //
+    // inputs
     SmartDashboard.putBoolean("Climbers/LeftLimitSwitch", m_leftLimitSwitch.get());
     SmartDashboard.putBoolean("Climbers/RightLimitSwitch", m_rightLimitSwitch.get());
+    //
   }
 
   //#endregion
