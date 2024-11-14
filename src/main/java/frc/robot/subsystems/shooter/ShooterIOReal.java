@@ -8,10 +8,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
+@Logged(strategy = Strategy.OPT_IN)
 public class ShooterIOReal implements IShooterIO {
 
     private TalonFX m_talonFX;
@@ -44,23 +47,33 @@ public class ShooterIOReal implements IShooterIO {
 
         m_noteDetector = new DigitalInput(ShooterSubsystem.VMap.NoteDetectorDIOChannel);
     }
-    
-    public ShooterIOInputs GetInputs() {
+
+    //#region IO Methods
+
+    @Override
+    public ShooterIOInputs getInputs() {
         var inputs = new ShooterIOInputs();
+
+        inputs.talon_state = m_talonFX.get();
+        inputs.talon_velocity = m_talonFX.getVelocity().getValueAsDouble();
+
+        inputs.victor_output = m_victorSPX.getMotorOutputPercent();
+
+        inputs.elevationSolenoid_state = m_elevationSolenoid.get();
 
         inputs.noteDetector_state = !m_noteDetector.get();
 
         return inputs;
     }
 
-    public void SetOutputs(ShooterIOOutputs outputs) {
+    @Override
+    public void setOutputs(ShooterIOOutputs outputs) {
         var inputs = new ShooterIOInputs();
 
-        outputs.talon_speed = 0;
-        outputs.victor_speed = 0;
+        m_talonFX.set(outputs.talon_speed);
+        m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.victor_speed);
 
         m_elevationSolenoid.set(outputs.elevationSolenoid_value);
-
     }
 
     @Override
@@ -71,4 +84,5 @@ public class ShooterIOReal implements IShooterIO {
         shooterOutputs.talon_speed = 0;
         shooterOutputs.victor_speed = 0;
     }
+    //#endregion
 }

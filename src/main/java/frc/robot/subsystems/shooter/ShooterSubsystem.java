@@ -1,30 +1,19 @@
 package frc.robot.subsystems.shooter;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.shooter.IShooterIO.ShooterIOInputs;
-import frc.robot.subsystems.shooter.IShooterIO.ShooterIOOutputs;
-
 import java.util.Map;
 import java.util.function.Consumer;
 
+@Logged(strategy = Strategy.OPT_IN)
 public class ShooterSubsystem extends SubsystemBase {
 
   public static class VMap {
@@ -61,9 +50,7 @@ public class ShooterSubsystem extends SubsystemBase {
     Consumer<LEDPattern> setLEDTemporaryPatternFunc
   ) {
     setName("Shooter");
-
-
-
+    
     m_clearForegroundPatternFunc = restoreLEDPersistentPatternFunc;
     m_setForegroundPatternFunc = setLEDTemporaryPatternFunc;
   }
@@ -75,20 +62,18 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    // m_talonFX.set(speed);
-    // m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed * 3);
-
     shooterOutputs.talon_speed = speed;
     shooterOutputs.victor_speed = speed * 3;
   }
 
   public void runGreenWheel(double speed) {
-    //m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed);
     shooterOutputs.victor_speed = speed;
   }
 
   /**
    * Stops the shooter motors
+   * @implNote Version declared in the subsytem, should be used when interacting with shooter subsytem from outside
+   * @see IShooterIO StopMotors()
    */
   public void stopMotors() {
     shooterIO.StopMotors();
@@ -98,7 +83,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * Gets a boolean indicating whether a note is blocking the beam sensor
-   * @return
+   * @return boolean
    */
   public boolean isNoteLoaded() {
     // return !m_noteDetector.get();
@@ -139,9 +124,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // Level2 Logging
-    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", m_talonFX.get());
-    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", m_talonFX.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter/GuideMotorOutput", m_victorSPX.getMotorOutputPercent());
+    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", shooterInputs.talon_state);
+    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", shooterInputs.talon_velocity);
+    SmartDashboard.putNumber("Shooter/GuideMotorOutput", shooterInputs.victor_output);
     SmartDashboard.putBoolean("Shooter/NoteDetected", newNoteDetectedValue);
   }
 
@@ -149,7 +134,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * Stops the shooter motors
-   * @return
+   * @return Command
    */
   public Command stopMotorsCommand() {
     return Commands.runOnce(() -> stopMotors());
@@ -157,7 +142,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * Shootes a note at half speed
-   * @return
+   * @return Command
    */
   public Command scoreInAmpCommand() {
     return Commands.run(() -> runShooter(0.5));
@@ -165,7 +150,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * Shootes a note at full speed
-   * @return
+   * @return Command
    */
   public Command startShootingNoteCommand() {
     return Commands.runOnce(() -> {
@@ -176,7 +161,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * Sets the elevation of the shooter all the way up
-   * @return
+   * @return Command
    */
   public Command setElevationUpCommand() {
     return Commands.runOnce(this::setElevatorUp);
@@ -184,7 +169,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * Sets the elevation of the shooter all the way down
-   * @return
+   * @return Command
    */
   public Command setElevationDownCommand() {
     return Commands.runOnce(this::setElevatorDown);
@@ -192,14 +177,17 @@ public class ShooterSubsystem extends SubsystemBase {
 
   /**
    * Toggles the elevation of the shooter up/down
-   * @return
+   * @return Command
    */
   public Command toggleElevationCommand() {
     return Commands.runOnce(() -> {
-      if (m_elevationSolenoid.get() == Value.kForward) setElevatorDown(); else setElevatorUp();
+      if (shooterInputs.elevationSolenoid_state == Value.kForward) setElevatorDown(); else setElevatorUp();
     });
   }
 
+  /**
+   * Links named commands used in PathPlanner to methods in the subsystem
+   */
   public Map<String, Command> getNamedCommands() {
     return Map.of(
       "Set_Elevation_Up",
