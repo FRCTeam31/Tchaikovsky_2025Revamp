@@ -7,13 +7,15 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.intake.IntakeSubsystem.VMap;
 
-public class IntakeIOReal {
-
+public class IntakeIOReal implements IIntakeIO {
     private DigitalInput m_topLimitSwitch; //input
     private DigitalInput m_bottomLimitSwitch;
     private CANSparkMax m_rollers; //output
     private CANSparkMax m_angleLeft; //output
     private CANSparkMax m_angleRight; //output
+
+    private IntakeIOInputs m_inputs = new IntakeIOInputs();
+    
 
     public IntakeIOReal() {
     m_topLimitSwitch = new DigitalInput(VMap.TopLimitSwitchChannel);
@@ -35,14 +37,28 @@ public class IntakeIOReal {
     m_angleRight.setInverted(VMap.NeoRightInverted);
     m_angleRight.setSmartCurrentLimit(40, 60);
 
-    m_angleStartPoint = getPositionRight();
-    SmartDashboard.putNumber("Intake/AngleStartPoint", m_angleStartPoint);
+    m_inputs.AngleStartPoint = getPositionRight();
+    SmartDashboard.putNumber("Intake/AngleStartPoint", m_inputs.AngleStartPoint);
 
-    m_anglePid = VMap.IntakeAnglePid.createPIDController(0.02);
-    m_anglePid.setSetpoint(m_angleStartPoint);
-    m_angleToggledIn = true;
+    m_inputs.m_anglePid = VMap.IntakeAnglePid.createPIDController(0.02);
+    m_anglePid.setSetpoint(m_inputs.m_angleStartPoint);
 
     // Set the default command for the subsystem so that it runs the PID loop
-    setDefaultCommand(seekAngleSetpointCommand());
+    // setDefaultCommand(seekAngleSetpointCommand());
+
+    /**
+   * Gets the current position of the Intake Angle from the right NEO's encoder
+   * @return
+   */
+  public double getPositionRight() {
+    return m_angleRight.getEncoder().getPosition();
+  }
+
+  /**
+   * Gets the current position of the Intake Angle from the left NEO's encoder
+   * @return
+   */
+  public double getPositionLeft() {
+    return m_angleLeft.getEncoder().getPosition();
   }
 }
