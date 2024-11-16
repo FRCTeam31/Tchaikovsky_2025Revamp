@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -35,9 +37,13 @@ public class ShooterSubsystem extends SubsystemBase {
   private LEDPattern m_noteDetectedLEDPattern = LEDPattern.solid(Color.kOrange)
     .blink(Units.Seconds.of(0.2));
 
-  private IShooterIO shooterIO;
-  private ShooterIOInputs shooterInputs = new ShooterIOInputs();
-  private ShooterIOOutputs shooterOutputs = new ShooterIOOutputs();
+   @Logged(name = "DriveIO", importance = Logged.Importance.CRITICAL)
+  private IShooterIO m_shooterio = Robot.isReal()
+    ? new ShooterIOReal() 
+    : new ShooterIOSim();
+  private ShooterIOInputs m_inputs;
+  @Logged(name = "ShooterIOOutputs", importance = Logged.Importance.CRITICAL)
+  private ShooterIOOutputs m_outputs;
 
   // #endregion
 
@@ -46,10 +52,14 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param config
    */
   public ShooterSubsystem(
+    Boolean isReal,
     Runnable restoreLEDPersistentPatternFunc,
     Consumer<LEDPattern> setLEDTemporaryPatternFunc
   ) {
     setName("Shooter");
+
+    m_inputs = m_shooterio.getInputs();
+    m_outputs = new ShooterIOOutputs();
     
     m_clearForegroundPatternFunc = restoreLEDPersistentPatternFunc;
     m_setForegroundPatternFunc = setLEDTemporaryPatternFunc;
@@ -62,21 +72,23 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    shooterOutputs.talon_speed = speed;
-    shooterOutputs.victor_speed = speed * 3;
+    m_outputs.talon_speed = speed;
+    m_outputs.victor_speed = speed * 3;
   }
 
   public void runGreenWheel(double speed) {
-    shooterOutputs.victor_speed = speed;
+    m_outputs.victor_speed = speed;
   }
 
   /**
    * Stops the shooter motors
-   * @implNote Version declared in the subsytem, should be used when interacting with shooter subsytem from outside
+   * @implNote Version declared in the ShooterSubsystem.
+   * This is the method that, unlike StopMotors(), interacts with the lights on the robot. Because of this, this method will be used almost everywhere.
+   * ( StopMotors() in IShooterIO behaves more like multiple lines of code stopping the motors, while stopMotors() in ShooterSubsystem ties it all together. ) 
    * @see IShooterIO StopMotors()
    */
   public void stopMotors() {
-    shooterIO.StopMotors();
+    m_shooterio.StopMotors();
     
     m_clearForegroundPatternFunc.run();
   }
@@ -86,13 +98,11 @@ public class ShooterSubsystem extends SubsystemBase {
    * @return boolean
    */
   public boolean isNoteLoaded() {
-    // return !m_noteDetector.get();
-    return shooterInputs.noteDetector_state;
+    return m_inputs.noteDetector_state;
   }
 
   public void setElevator(Value value) {
-    // m_elevationSolenoid.set(value);
-    shooterOutputs.elevationSolenoid_value = value;
+    m_outputs.elevationSolenoid_value = value;
   }
 
   public void setElevatorUp() {
@@ -124,9 +134,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // Level2 Logging
-    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", shooterInputs.talon_state);
-    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", shooterInputs.talon_velocity);
-    SmartDashboard.putNumber("Shooter/GuideMotorOutput", shooterInputs.victor_output);
+    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", m_inputs.talon_state);
+    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", m_inputs.talon_velocity);
+    SmartDashboard.putNumber("Shooter/GuideMotorOutput", m_inputs.victor_output);
     SmartDashboard.putBoolean("Shooter/NoteDetected", newNoteDetectedValue);
   }
 
@@ -181,7 +191,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command toggleElevationCommand() {
     return Commands.runOnce(() -> {
-      if (shooterInputs.elevationSolenoid_state == Value.kForward) setElevatorDown(); else setElevatorUp();
+      if (m_inputs.elevationSolenoid_state == Value.kForward) setElevatorDown(); else setElevatorUp();
     });
   }
 

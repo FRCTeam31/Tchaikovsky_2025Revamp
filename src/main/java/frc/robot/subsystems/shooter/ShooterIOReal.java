@@ -22,11 +22,11 @@ public class ShooterIOReal implements IShooterIO {
     private DoubleSolenoid m_elevationSolenoid;
     private DigitalInput m_noteDetector;
 
-    private IShooterIO shooterIO;
-    private ShooterIOInputs shooterInputs = new ShooterIOInputs();
-    private ShooterIOOutputs shooterOutputs = new ShooterIOOutputs();
+    private ShooterIOOutputs m_outputs;
 
     public ShooterIOReal() {
+        m_outputs = new ShooterIOOutputs();
+
         m_talonFX = new TalonFX(ShooterSubsystem.VMap.TalonFXCanID);
         var talonConfig = new TalonFXConfiguration();
         talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -68,7 +68,6 @@ public class ShooterIOReal implements IShooterIO {
 
     @Override
     public void setOutputs(ShooterIOOutputs outputs) {
-        var inputs = new ShooterIOInputs();
 
         m_talonFX.set(outputs.talon_speed);
         m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.victor_speed);
@@ -78,11 +77,13 @@ public class ShooterIOReal implements IShooterIO {
 
     @Override
     public void StopMotors() {
+
         m_talonFX.stopMotor();
         m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
 
-        shooterOutputs.talon_speed = 0;
-        shooterOutputs.victor_speed = 0;
+        m_outputs.talon_speed = 0;
+        m_outputs.victor_speed = 0;
     }
+    
     //#endregion
 }

@@ -2,9 +2,6 @@ package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import frc.robot.subsystems.drivetrain.DrivetrainIOInputs;
-import frc.robot.subsystems.drivetrain.DrivetrainIOOutputs;
 
 @Logged(strategy = Strategy.OPT_IN)
 public interface IShooterIO {
@@ -23,8 +20,10 @@ public interface IShooterIO {
     public void setOutputs(ShooterIOOutputs outputs);
 
     /**
-     * Stops the motors in the shooter
-     * @implNote Version used in the shooter IO, should only be used when within the shooter subsytem
+     * Directly interacts with IShooterIO, stopping the motors in the shooter
+     * @implNote Version declared in the Shooter IO.
+     * This method is used to directly communicate to the interface and whichever class is currently running (real or sim).
+     * This should mainly only be called from within methods in the ShooterSubsytem class.
      * @see ShooterSubsystem stopMotors()
      */
     public void StopMotors();
