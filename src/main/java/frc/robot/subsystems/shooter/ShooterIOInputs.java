@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 
 /**
@@ -10,12 +9,12 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 @Logged
 public class ShooterIOInputs {
 
-        public double talon_state;
-        public double talon_velocity;
-        public double victor_output;
+        public double TalonState;
+        public double TalonVelocity;
+        public double VictorOutput;
 
-        public Value elevationSolenoid_state;
+        public boolean ElevationSolenoidState;
 
-        public boolean noteDetector_state;
+        public boolean NoteDetectorState;
 
 }

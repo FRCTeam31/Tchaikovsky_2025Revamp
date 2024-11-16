@@ -8,20 +8,17 @@ public class ShooterIOSim implements IShooterIO {
 
     @Override
     public ShooterIOInputs getInputs() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getInputs'");
+        return null;
     }
 
     @Override
     public void setOutputs(ShooterIOOutputs outputs) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setOutputs'");
+
     }
 
     @Override
     public void StopMotors() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'StopMotors'");
+
     }
     
 }

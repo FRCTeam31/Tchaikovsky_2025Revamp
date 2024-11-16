@@ -72,12 +72,12 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    m_outputs.talon_speed = speed;
-    m_outputs.victor_speed = speed * 3;
+    m_outputs.TalonSpeed = speed;
+    m_outputs.VictorSpeed = speed * 3;
   }
 
   public void runGreenWheel(double speed) {
-    m_outputs.victor_speed = speed;
+    m_outputs.VictorSpeed = speed;
   }
 
   /**
@@ -98,11 +98,15 @@ public class ShooterSubsystem extends SubsystemBase {
    * @return boolean
    */
   public boolean isNoteLoaded() {
-    return m_inputs.noteDetector_state;
+    return m_inputs.NoteDetectorState;
   }
 
   public void setElevator(Value value) {
-    m_outputs.elevationSolenoid_value = value;
+    if (value == Value.kForward) {
+      m_outputs.ElevationSolenoidValue = true;
+    } else {
+      m_outputs.ElevationSolenoidValue = false;
+    }
   }
 
   public void setElevatorUp() {
@@ -134,9 +138,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // Level2 Logging
-    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", m_inputs.talon_state);
-    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", m_inputs.talon_velocity);
-    SmartDashboard.putNumber("Shooter/GuideMotorOutput", m_inputs.victor_output);
+    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", m_inputs.TalonState);
+    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", m_inputs.TalonVelocity);
+    SmartDashboard.putNumber("Shooter/GuideMotorOutput", m_inputs.VictorOutput);
     SmartDashboard.putBoolean("Shooter/NoteDetected", newNoteDetectedValue);
   }
 
@@ -191,7 +195,11 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command toggleElevationCommand() {
     return Commands.runOnce(() -> {
-      if (m_inputs.elevationSolenoid_state == Value.kForward) setElevatorDown(); else setElevatorUp();
+      if (m_inputs.ElevationSolenoidState == true) {
+        setElevatorDown();
+      } else {
+        setElevatorUp();
+      }
     });
   }
 

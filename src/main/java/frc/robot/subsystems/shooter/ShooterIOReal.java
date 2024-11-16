@@ -13,6 +13,7 @@ import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 @Logged(strategy = Strategy.OPT_IN)
 public class ShooterIOReal implements IShooterIO {
@@ -54,14 +55,18 @@ public class ShooterIOReal implements IShooterIO {
     public ShooterIOInputs getInputs() {
         var inputs = new ShooterIOInputs();
 
-        inputs.talon_state = m_talonFX.get();
-        inputs.talon_velocity = m_talonFX.getVelocity().getValueAsDouble();
+        inputs.TalonState = m_talonFX.get();
+        inputs.TalonVelocity = m_talonFX.getVelocity().getValueAsDouble();
 
-        inputs.victor_output = m_victorSPX.getMotorOutputPercent();
+        inputs.VictorOutput = m_victorSPX.getMotorOutputPercent();
 
-        inputs.elevationSolenoid_state = m_elevationSolenoid.get();
+        if (m_elevationSolenoid.get() == Value.kForward) {
+            inputs.ElevationSolenoidState = true;
+        } else {
+            inputs.ElevationSolenoidState = false;
+        }
 
-        inputs.noteDetector_state = !m_noteDetector.get();
+        inputs.NoteDetectorState = !m_noteDetector.get();
 
         return inputs;
     }
@@ -69,10 +74,14 @@ public class ShooterIOReal implements IShooterIO {
     @Override
     public void setOutputs(ShooterIOOutputs outputs) {
 
-        m_talonFX.set(outputs.talon_speed);
-        m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.victor_speed);
+        m_talonFX.set(outputs.TalonSpeed);
+        m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.VictorSpeed);
 
-        m_elevationSolenoid.set(outputs.elevationSolenoid_value);
+        if (outputs.ElevationSolenoidValue) {
+            m_elevationSolenoid.set(Value.kForward);
+        } else {
+            m_elevationSolenoid.set(Value.kReverse);
+        }
     }
 
     @Override
@@ -81,8 +90,8 @@ public class ShooterIOReal implements IShooterIO {
         m_talonFX.stopMotor();
         m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
 
-        m_outputs.talon_speed = 0;
-        m_outputs.victor_speed = 0;
+        m_outputs.TalonSpeed = 0;
+        m_outputs.VictorSpeed = 0;
     }
     
     //#endregion
