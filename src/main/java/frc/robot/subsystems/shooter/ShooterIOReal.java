@@ -60,11 +60,11 @@ public class ShooterIOReal implements IShooterIO {
 
         inputs.VictorOutput = m_victorSPX.getMotorOutputPercent();
 
-        if (m_elevationSolenoid.get() == Value.kForward) {
-            inputs.ElevationSolenoidState = true;
-        } else {
-            inputs.ElevationSolenoidState = false;
-        }
+        inputs.ElevationSolenoidState = (
+            m_elevationSolenoid.get() == Value.kForward
+            ? true
+            : false
+        );
 
         inputs.NoteDetectorState = !m_noteDetector.get();
 
@@ -77,11 +77,11 @@ public class ShooterIOReal implements IShooterIO {
         m_talonFX.set(outputs.TalonSpeed);
         m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.VictorSpeed);
 
-        if (outputs.ElevationSolenoidValue) {
-            m_elevationSolenoid.set(Value.kForward);
-        } else {
-            m_elevationSolenoid.set(Value.kReverse);
-        }
+        m_elevationSolenoid.set(
+            outputs.ElevationSolenoidValue
+            ? Value.kForward
+            : Value.kReverse
+        );
     }
 
     @Override

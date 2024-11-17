@@ -38,9 +38,11 @@ public class ShooterSubsystem extends SubsystemBase {
     .blink(Units.Seconds.of(0.2));
 
    @Logged(name = "ShooterIO", importance = Logged.Importance.CRITICAL)
-  private IShooterIO m_shooterio = Robot.isReal()
+  private IShooterIO m_shooterio = (
+    Robot.isReal()
     ? new ShooterIOReal() 
-    : new ShooterIOSim();
+    : new ShooterIOSim()
+  );
   private ShooterIOInputs m_inputs;
   @Logged(name = "ShooterIOOutputs", importance = Logged.Importance.CRITICAL)
   private ShooterIOOutputs m_outputs;
@@ -52,7 +54,6 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param config
    */
   public ShooterSubsystem(
-    Boolean isReal,
     Runnable restoreLEDPersistentPatternFunc,
     Consumer<LEDPattern> setLEDTemporaryPatternFunc
   ) {
@@ -101,12 +102,18 @@ public class ShooterSubsystem extends SubsystemBase {
     return m_inputs.NoteDetectorState;
   }
 
+  /**
+   * Sets the elevator to either kForward or kReverse ( kOff not supported and will instead act as if it is kReverse ).
+   * Works by checking if value is kForward, then setting ElevationSolenoidValue to true if they are equal and false if they are not.
+   * @implNote A positive ElevationSolenoidValue corresponds to kForward and vice versa
+   * @param value
+   */
   public void setElevator(Value value) {
-    if (value == Value.kForward) {
-      m_outputs.ElevationSolenoidValue = true;
-    } else {
-      m_outputs.ElevationSolenoidValue = false;
-    }
+    m_outputs.ElevationSolenoidValue = (
+      value == Value.kForward
+      ? true
+      : false
+    );
   }
 
   public void setElevatorUp() {

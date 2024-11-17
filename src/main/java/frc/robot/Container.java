@@ -58,7 +58,6 @@ public class Container {
         LEDs::setForegroundPattern, 
         Vision::getAllLimelightInputs);
       // Shooter = new Shooter(
-      //   isReal,
       //   LEDs::clearForegroundPattern,
       //   LEDs::setForegroundPattern);
       // Intake = new Intake();
