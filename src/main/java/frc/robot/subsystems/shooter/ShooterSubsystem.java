@@ -132,6 +132,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Get inputs
+    m_inputs = m_shooterio.getInputs();
+
     var newNoteDetectedValue = isNoteLoaded();
     if (newNoteDetectedValue != m_lastNoteDetectedValue) {
       if (newNoteDetectedValue && !m_lastNoteDetectedValue) {
@@ -142,6 +145,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
       // Save the new value
       m_lastNoteDetectedValue = newNoteDetectedValue;
+
+      // Send outputs to the shooter IO
+      m_shooterio.setOutputs(m_outputs);
     }
 
     // Level2 Logging
