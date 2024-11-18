@@ -1,8 +1,9 @@
 package frc.robot.subsystems.climbers;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.DigitalInput;
-
+@Logged
 public class ClimbersIOInputs {
-    public DigitalInput leftLimitSwitch;
-    public DigitalInput rightLimitSwitch;
+    public Boolean leftLimitSwitch;
+    public Boolean rightLimitSwitch;
 }
