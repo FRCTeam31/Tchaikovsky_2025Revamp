@@ -99,7 +99,12 @@ public class ShooterIOReal implements IShooterIO {
     @Override
     public void StopMotors() {
 
+        m_previousTalonSpeed = 0;
+        m_previousVictorSpeed = 0;
+
+        m_talonFX.set(0);
         m_talonFX.stopMotor();
+
         m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
 
     }
