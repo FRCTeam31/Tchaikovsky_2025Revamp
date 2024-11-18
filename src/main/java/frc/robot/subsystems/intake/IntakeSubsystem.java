@@ -49,7 +49,7 @@ private IntakeIOInputs m_inputs = new IntakeIOInputs();
     } else {
       m_intakeIO = new IntakeIOSim();
     }
-    m_inputs.AngleStartPoint = getPositionRight();
+
     SmartDashboard.putNumber("Intake/AngleStartPoint", m_inputs.AngleStartPoint);
 
     m_anglePid = VMap.IntakeAnglePid.createPIDController(0.02);
@@ -109,15 +109,15 @@ private IntakeIOInputs m_inputs = new IntakeIOInputs();
   @Override
   public void periodic() {
     // Level2 Logging
-    SmartDashboard.putBoolean("Intake/ToggledIn", m_angleToggledIn);
+    // SmartDashboard.putBoolean("Intake/ToggledIn", m_angleToggledIn);
 
-    SmartDashboard.putNumber("Intake/ArmPositionRight", getPositionRight());
-    SmartDashboard.putNumber("Intake/ArmPositionLeft", getPositionLeft());
+    // SmartDashboard.putNumber("Intake/ArmPositionRight", getPositionRight());
+    // SmartDashboard.putNumber("Intake/ArmPositionLeft", getPositionLeft());
 
-    SmartDashboard.putNumber("Intake/RightMotorOutput", m_angleRight.get());
-    SmartDashboard.putNumber("Intake/LeftMotorOutput", m_angleLeft.get());
+    // SmartDashboard.putNumber("Intake/RightMotorOutput", m_angleRight.get());
+    // SmartDashboard.putNumber("Intake/LeftMotorOutput", m_angleLeft.get());
 
-    SmartDashboard.putNumber("Intake/RollersOutput", m_rollers.get());
+    // SmartDashboard.putNumber("Intake/RollersOutput", m_rollers.get());
   }
 
   //#region Commands

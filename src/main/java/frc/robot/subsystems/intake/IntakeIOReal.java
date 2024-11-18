@@ -14,10 +14,12 @@ public class IntakeIOReal implements IIntakeIO {
     private CANSparkMax m_angleLeft; //output
     private CANSparkMax m_angleRight; //output
 
-    private IntakeIOInputs m_inputs = new IntakeIOInputs();
+    private IntakeIOInputs m_inputs;
     
 
     public IntakeIOReal() {
+      m_inputs = new IntakeIOInputs();
+
     m_topLimitSwitch = new DigitalInput(VMap.TopLimitSwitchChannel);
     m_bottomLimitSwitch = new DigitalInput(VMap.BottomLimitSwitchChannel);
 
@@ -40,25 +42,18 @@ public class IntakeIOReal implements IIntakeIO {
     m_inputs.AngleStartPoint = getPositionRight();
     SmartDashboard.putNumber("Intake/AngleStartPoint", m_inputs.AngleStartPoint);
 
-    m_inputs.m_anglePid = VMap.IntakeAnglePid.createPIDController(0.02);
-    m_anglePid.setSetpoint(m_inputs.m_angleStartPoint);
+    m_anglePid = VMap.IntakeAnglePid.createPIDController(0.02);
+    m_anglePid.setSetpoint(m_inputs.AngleStartPoint);
 
-    // Set the default command for the subsystem so that it runs the PID loop
-    // setDefaultCommand(seekAngleSetpointCommand());
-
-    /**
-   * Gets the current position of the Intake Angle from the right NEO's encoder
-   * @return
-   */
-  public double getPositionRight() {
-    return m_angleRight.getEncoder().getPosition();
+  @Override
+  public IntakeIOInputs getInputs() {
+    m_inputs.intakeMotorLeftPosition = m_angleLeft.getEncoder().getPosition();
+    m_inputs.intakeMotorRightPosition = m_angleRight.getEncoder().getPosition();
+    m_inputs.bottomLimitSwitch = m_bottomLimitSwitch.get();
+    m_inputs.topLimitSwitch = m_topLimitSwitch.get();
   }
+  @Override
+  public void setOutputs(IntakeIOOutputs outputs) {
 
-  /**
-   * Gets the current position of the Intake Angle from the left NEO's encoder
-   * @return
-   */
-  public double getPositionLeft() {
-    return m_angleLeft.getEncoder().getPosition();
   }
 }

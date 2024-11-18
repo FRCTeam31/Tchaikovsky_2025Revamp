@@ -7,4 +7,6 @@ public class IntakeIOInputs {
   public double intakeMotorRightPosition = 0;
   public boolean topLimitSwitch;
   public boolean bottomLimitSwitch;
+
+  
 }
