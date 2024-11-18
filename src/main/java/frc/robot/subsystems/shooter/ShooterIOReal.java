@@ -23,10 +23,10 @@ public class ShooterIOReal implements IShooterIO {
     private DoubleSolenoid m_elevationSolenoid;
     private DigitalInput m_noteDetector;
 
-    private ShooterIOOutputs m_outputs;
+    private double m_previousTalonSpeed = 0;
+    private double m_previousVictorSpeed = 0;
 
     public ShooterIOReal() {
-        m_outputs = new ShooterIOOutputs();
 
         m_talonFX = new TalonFX(ShooterSubsystem.VMap.TalonFXCanID);
         var talonConfig = new TalonFXConfiguration();
@@ -74,8 +74,20 @@ public class ShooterIOReal implements IShooterIO {
     @Override
     public void setOutputs(ShooterIOOutputs outputs) {
 
-        m_talonFX.set(outputs.TalonSpeed);
-        m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.VictorSpeed);
+        if (outputs.TalonSpeed != m_previousTalonSpeed) {
+
+            m_talonFX.set(outputs.TalonSpeed);
+
+            m_previousTalonSpeed = outputs.TalonSpeed;
+        }
+
+        if (outputs.VictorSpeed != m_previousVictorSpeed) {
+
+            m_victorSPX.set(VictorSPXControlMode.PercentOutput, outputs.VictorSpeed);
+
+            m_previousVictorSpeed = outputs.VictorSpeed;
+        }
+
 
         m_elevationSolenoid.set(
             outputs.ElevationSolenoidValue
@@ -90,8 +102,6 @@ public class ShooterIOReal implements IShooterIO {
         m_talonFX.stopMotor();
         m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
 
-        m_outputs.TalonSpeed = 0;
-        m_outputs.VictorSpeed = 0;
     }
     
     //#endregion

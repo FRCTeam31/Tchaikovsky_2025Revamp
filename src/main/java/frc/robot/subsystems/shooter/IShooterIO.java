@@ -25,6 +25,7 @@ public interface IShooterIO {
      * This method is used to directly communicate to the interface and whichever class is currently running (real or sim).
      * This should mainly only be called from within methods in the ShooterSubsytem class.
      * @see ShooterSubsystem stopMotors()
+     * @param outputs
      */
     public void StopMotors();
 }

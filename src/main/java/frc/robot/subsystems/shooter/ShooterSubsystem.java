@@ -90,6 +90,9 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void stopMotors() {
     m_shooterio.StopMotors();
+
+    m_outputs.TalonSpeed = 0;
+    m_outputs.VictorSpeed = 0;
     
     m_clearForegroundPatternFunc.run();
   }
