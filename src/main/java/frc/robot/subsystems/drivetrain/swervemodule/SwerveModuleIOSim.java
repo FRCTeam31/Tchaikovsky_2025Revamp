@@ -15,7 +15,6 @@ import prime.control.PrimePIDConstants;
 
 public class SwerveModuleIOSim implements ISwerveModuleIO {
 
-  private SwerveModuleMap m_Map;
   private SwerveModuleIOInputs m_inputs = new SwerveModuleIOInputs();
 
   // Devices
@@ -25,20 +24,20 @@ public class SwerveModuleIOSim implements ISwerveModuleIO {
   private Rotation2d m_steerAngle = new Rotation2d();
 
   public SwerveModuleIOSim(SwerveModuleMap moduleMap) {
-    m_Map = moduleMap;
-
     setupDriveMotor(DriveMap.DrivePID);
   }
 
   @Override
   public SwerveModuleIOInputs getInputs() {
     m_driveMotorSim.update(0.020);
-    var speedMps = m_driveMotorSim.getAngularVelocity().in(Units.RotationsPerSecond) * DriveMap.DriveWheelCircumferenceMeters;
-    
+    var speedMps =
+        m_driveMotorSim.getAngularVelocity().in(Units.RotationsPerSecond) * DriveMap.DriveWheelCircumferenceMeters;
+
     m_inputs.ModuleState.angle = m_steerAngle;
     m_inputs.ModuleState.speedMetersPerSecond = speedMps;
     m_inputs.ModulePosition.angle = m_steerAngle;
-    m_inputs.ModulePosition.distanceMeters = m_driveMotorSim.getAngularPositionRotations() * DriveMap.DriveWheelCircumferenceMeters;
+    m_inputs.ModulePosition.distanceMeters =
+        m_driveMotorSim.getAngularPositionRotations() * DriveMap.DriveWheelCircumferenceMeters;
 
     return m_inputs;
   }
@@ -56,17 +55,13 @@ public class SwerveModuleIOSim implements ISwerveModuleIO {
 
   /**
    * Configures the drive motors
+   * 
    * @param pid
    */
   private void setupDriveMotor(PrimePIDConstants pid) {
-    m_driveMotorSim = new DCMotorSim(
-      LinearSystemId.createDCMotorSystem(
-        DCMotor.getFalcon500(1), 
-        0.001, 
-        DriveMap.DriveGearRatio
-      ),
-      DCMotor.getFalcon500(1)
-    );
+    m_driveMotorSim =
+        new DCMotorSim(LinearSystemId.createDCMotorSystem(DCMotor.getFalcon500(1), 0.001, DriveMap.DriveGearRatio),
+            DCMotor.getFalcon500(1));
 
     m_driveFeedback = new PIDController(0.1, 0, 0);
     m_driveFeedforward = new SimpleMotorFeedforward(0.0, 0.085);
@@ -75,8 +70,7 @@ public class SwerveModuleIOSim implements ISwerveModuleIO {
   /**
    * Sets the desired state of the module.
    *
-   * @param desiredState The optimized state of the module that we'd like to be at in this
-   *                     period
+   * @param desiredState The optimized state of the module that we'd like to be at in this period
    */
   private void setDesiredState(SwerveModuleState desiredState) {
     // Optimize the desired state
@@ -86,7 +80,7 @@ public class SwerveModuleIOSim implements ISwerveModuleIO {
     // Calculate target data to voltage data
     var velocityRadPerSec = desiredState.speedMetersPerSecond / (DriveMap.DriveWheelDiameterMeters / 2);
     var driveAppliedVolts = m_driveFeedforward.calculate(velocityRadPerSec)
-            + m_driveFeedback.calculate(m_driveMotorSim.getAngularVelocityRadPerSec(), velocityRadPerSec);
+        + m_driveFeedback.calculate(m_driveMotorSim.getAngularVelocityRadPerSec(), velocityRadPerSec);
     driveAppliedVolts = MathUtil.clamp(driveAppliedVolts, -12.0, 12.0);
 
     m_driveMotorSim.setInputVoltage(driveAppliedVolts);
@@ -95,17 +89,17 @@ public class SwerveModuleIOSim implements ISwerveModuleIO {
   }
 
   /**
-   * Optimizes the module angle & drive inversion to ensure the module takes the shortest path to drive at the desired angle
+   * Optimizes the module angle & drive inversion to ensure the module takes the shortest path to drive at the desired
+   * angle
+   * 
    * @param desiredState
    */
   private SwerveModuleState optimize(SwerveModuleState desiredState) {
     Rotation2d currentAngle = m_inputs.ModulePosition.angle;
     var delta = desiredState.angle.minus(currentAngle);
     if (Math.abs(delta.getDegrees()) > 90.0) {
-      return new SwerveModuleState(
-        -desiredState.speedMetersPerSecond,
-        desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0))
-      );
+      return new SwerveModuleState(-desiredState.speedMetersPerSecond,
+          desiredState.angle.rotateBy(Rotation2d.fromDegrees(180.0)));
     } else {
       return desiredState;
     }

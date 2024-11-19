@@ -29,7 +29,6 @@ import frc.robot.subsystems.vision.VisionSubsystem;
 
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import prime.control.SwerveControlSuppliers;
@@ -39,9 +38,7 @@ import prime.vision.LimelightInputs;
 public class DrivetrainSubsystem extends SubsystemBase {
 
   public enum DrivetrainControlMode {
-    kRobotRelative,
-    kFieldRelative,
-    kPathFollowing,
+    kRobotRelative, kFieldRelative, kPathFollowing,
   }
 
   private Runnable m_clearForegroundPatternFunc;
@@ -49,25 +46,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   // Shuffleboard Drivetrain tab configuration
   private ShuffleboardTab d_drivetrainTab = Shuffleboard.getTab("Drivetrain");
-  public GenericEntry d_snapToEnabledEntry = d_drivetrainTab
-    .add("SnapTo Enabled", false)
-    .withWidget(BuiltInWidgets.kBooleanBox)
-    .withPosition(0, 0)
-    .withSize(2, 2)
-    .getEntry();
-  private GenericEntry d_snapAngle = d_drivetrainTab
-    .add("SnapTo Angle", 0)
-    .withWidget(BuiltInWidgets.kGyro)
-    .withPosition(2, 0)
-    .withSize(4, 5)
-    .withProperties(Map.of("Counter clockwise", true, "Major tick spacing", 45.0, "Minor tick spacing", 15.0))
-    .getEntry();
+  public GenericEntry d_snapToEnabledEntry = d_drivetrainTab.add("SnapTo Enabled", false)
+      .withWidget(BuiltInWidgets.kBooleanBox).withPosition(0, 0).withSize(2, 2).getEntry();
+  private GenericEntry d_snapAngle =
+      d_drivetrainTab.add("SnapTo Angle", 0).withWidget(BuiltInWidgets.kGyro).withPosition(2, 0).withSize(4, 5)
+          .withProperties(Map.of("Counter clockwise", true, "Major tick spacing", 45.0, "Minor tick spacing", 15.0))
+          .getEntry();
 
   // IO
-  @Logged(name = "DriveIO", importance = Logged.Importance.CRITICAL)
-  private IDrivetrainIO m_driveio = Robot.isReal()
-    ? new DrivetrainIOReal() 
-    : new DrivetrainIOSim();
+  private IDrivetrainIO m_driveio = Robot.isReal() ? new DrivetrainIOReal() : new DrivetrainIOSim();
   private DrivetrainIOInputs m_inputs;
   @Logged(name = "DriveIOOutputs", importance = Logged.Importance.CRITICAL)
   private DrivetrainIOOutputs m_outputs;
@@ -81,29 +68,24 @@ public class DrivetrainSubsystem extends SubsystemBase {
   @Logged(importance = Logged.Importance.CRITICAL)
   public boolean WithinPoseEstimationVelocity = true;
 
-  private LEDPattern m_snapOnTargetPattern = LEDPattern.solid(Color.kGreen)
-    .blink(Units.Seconds.of(0.1));
-  private LEDPattern m_snapOffTargetPattern = LEDPattern.steps(Map.of(0.0, Color.kRed, 0.25, Color.kBlack))
-    .scrollAtRelativeSpeed(Units.Hertz.of(2));
+  private LEDPattern m_snapOnTargetPattern = LEDPattern.solid(Color.kGreen).blink(Units.Seconds.of(0.1));
+  private LEDPattern m_snapOffTargetPattern =
+      LEDPattern.steps(Map.of(0.0, Color.kRed, 0.25, Color.kBlack)).scrollAtRelativeSpeed(Units.Hertz.of(2));
 
   /**
    * Creates a new Drivetrain.
    */
-  public DrivetrainSubsystem(
-    boolean isReal, 
-    Runnable clearForegroundPatternFunc,
-    Consumer<LEDPattern> setForegroundPatternFunc,
-    Supplier<LimelightInputs[]> limelightInputsSupplier) {
+  public DrivetrainSubsystem(boolean isReal, Runnable clearForegroundPatternFunc,
+      Consumer<LEDPattern> setForegroundPatternFunc, Supplier<LimelightInputs[]> limelightInputsSupplier) {
     setName("Drivetrain");
 
     m_clearForegroundPatternFunc = clearForegroundPatternFunc;
     m_setForegroundPatternFunc = setForegroundPatternFunc;
+    m_limelightInputsSupplier = limelightInputsSupplier;
 
     // Create IO
     m_inputs = m_driveio.getInputs();
     m_outputs = new DrivetrainIOOutputs();
-
-    m_limelightInputsSupplier = limelightInputsSupplier;
 
     configurePathPlanner();
   }
@@ -121,35 +103,27 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     // Set up PP to feed current path poses to the field widget
     PathPlannerLogging.setLogCurrentPoseCallback(pose -> DriverDashboard.FieldWidget.setRobotPose(pose));
-    PathPlannerLogging.setLogTargetPoseCallback(pose ->
-      DriverDashboard.FieldWidget.getObject("target pose").setPose(pose)
-    );
+    PathPlannerLogging
+        .setLogTargetPoseCallback(pose -> DriverDashboard.FieldWidget.getObject("target pose").setPose(pose));
     PathPlannerLogging.setLogActivePathCallback(poses -> DriverDashboard.FieldWidget.getObject("path").setPoses(poses));
 
     // Configure PathPlanner holonomic control
-    AutoBuilder.configure(
-      () -> m_inputs.EstimatedRobotPose,
-      m_driveio::setEstimatorPose,
-      () -> m_inputs.RobotRelativeChassisSpeeds,
-      (speeds, feedForwards) -> drivePathPlanner(speeds),
-      new PPHolonomicDriveController(
-        DriveMap.PathingTranslationPid.toPIDConstants(),
-        DriveMap.PathingRotationPid.toPIDConstants()
-      ),
-      config,
-      () -> {
-        // Boolean supplier that controls when the path will be mirrored for the red alliance
-        var alliance = DriverStation.getAlliance();
+    AutoBuilder.configure(() -> m_inputs.EstimatedRobotPose, m_driveio::setEstimatorPose,
+        () -> m_inputs.RobotRelativeChassisSpeeds, (speeds, feedForwards) -> drivePathPlanner(speeds),
+        new PPHolonomicDriveController(DriveMap.PathingTranslationPid.toPIDConstants(),
+            DriveMap.PathingRotationPid.toPIDConstants()),
+        config, () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          var alliance = DriverStation.getAlliance();
 
-        return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-      },
-      this
-    );
+          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+        }, this);
     // Example of overriding PathPlanner's rotation feedback
-    // PPHolonomicDriveController.overrideRotationFeedback(() -> m_inputs.SnapCorrectionRadiansPerSecond);
+    // PPHolonomicDriveController.overrideRotationFeedback(() ->
+    // m_inputs.SnapCorrectionRadiansPerSecond);
   }
 
-  //#region Control methods
+  // #region Control methods
 
   // Resets the Gyro
   public void resetGyro() {
@@ -158,6 +132,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   /**
    * Drives robot-relative using a ChassisSpeeds
+   * 
    * @param desiredChassisSpeeds The desired speeds of the robot
    */
   private void driveRobotRelative(ChassisSpeeds desiredChassisSpeeds) {
@@ -167,6 +142,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   /**
    * Drives field-relative using a ChassisSpeeds
+   * 
    * @param desiredChassisSpeeds The desired field-relative speeds of the robot
    */
   private void driveFieldRelative(ChassisSpeeds desiredChassisSpeeds) {
@@ -184,11 +160,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   private void setSnapToEnabled(boolean enabled) {
     m_outputs.SnapEnabled = enabled;
-    if (!enabled) m_clearForegroundPatternFunc.run();
+    if (!enabled) {
+      m_clearForegroundPatternFunc.run();
+    }
   }
 
   /**
    * Sets the snap-to gyro setpoint, converting from degrees to radians
+   * 
    * @param angle The angle to snap to in degrees
    */
   private void setSnapToSetpoint(double angle) {
@@ -203,7 +182,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
    */
   private void evaluatePoseEstimation(boolean withinTrustedVelocity, int limelightIndex) {
 
-    // If we have a valid target and we're moving in a trusted velocity range, update the pose estimator
+    // If we have a valid target and we're moving in a trusted velocity range, update the pose
+    // estimator
     var limelightInputs = m_limelightInputsSupplier.get()[limelightIndex];
     var isValidTarget = VisionSubsystem.isAprilTagIdValid(limelightInputs.ApriltagId);
     if (isValidTarget && withinTrustedVelocity) {
@@ -213,7 +193,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
   }
 
-  //#endregion
+  // #endregion
 
   /**
    * Updates odometry and any other periodic drivetrain events
@@ -224,13 +204,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_inputs = m_driveio.getInputs();
 
     // Pose estimation
-    WithinPoseEstimationVelocity =
-      m_inputs.RobotRelativeChassisSpeeds.omegaRadiansPerSecond < 0.2 && // 1 rad/s is about 60 degrees/s
-      m_inputs.RobotRelativeChassisSpeeds.vxMetersPerSecond < 2 &&
-      m_inputs.RobotRelativeChassisSpeeds.vyMetersPerSecond < 2;
+    WithinPoseEstimationVelocity = m_inputs.RobotRelativeChassisSpeeds.omegaRadiansPerSecond < 0.2 && // 1 rad/s is
+                                                                                                      // about 60
+                                                                                                      // degrees/s
+        m_inputs.RobotRelativeChassisSpeeds.vxMetersPerSecond < 2
+        && m_inputs.RobotRelativeChassisSpeeds.vyMetersPerSecond < 2;
 
     EstimatePoseUsingFrontCamera = DriverDashboard.FrontPoseEstimationSwitch.getBoolean(false);
-    if (EstimatePoseUsingFrontCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 0);
+    if (EstimatePoseUsingFrontCamera) {
+      evaluatePoseEstimation(WithinPoseEstimationVelocity, 0);
+    }
 
     // EstimatePoseUsingRearCamera = DriverDashboard.RearPoseEstimationSwitch.getBoolean(false);
     // if (EstimatePoseUsingRearCamera) evaluatePoseEstimation(WithinPoseEstimationVelocity, 1);
@@ -254,70 +237,68 @@ public class DrivetrainSubsystem extends SubsystemBase {
     d_snapAngle.setDouble(m_outputs.SnapSetpoint.getRadians());
   }
 
-  //#region Commands
+  // #region Commands
 
   /**
    * Creates a command that drives the robot using input controls
+   * 
    * @param controlSuppliers Controller input suppliers
    */
   public Command driveFieldRelativeCommand(SwerveControlSuppliers controlSuppliers) {
     return this.run(() -> {
-        // If the driver is trying to rotate the robot, disable snap-to control
-        if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
-          setSnapToEnabled(false);
-          m_clearForegroundPatternFunc.run();
-        }
+      // If the driver is trying to rotate the robot, disable snap-to control
+      if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
+        setSnapToEnabled(false);
+        m_clearForegroundPatternFunc.run();
+      }
 
-        // Convert inputs to MPS
-        var inputXMPS = controlSuppliers.X.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
-        var inputYMPS = -controlSuppliers.Y.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
-        var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
+      // Convert inputs to MPS
+      var inputXMPS = controlSuppliers.X.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+      var inputYMPS = -controlSuppliers.Y.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+      var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
 
-        // Build chassis speeds
-        var invert = Robot.onRedAlliance() ? -1 : 1;
+      // Build chassis speeds
+      var invert = Robot.onRedAlliance() ? -1 : 1;
 
-        // Drive the robot with the driver-relative inputs, converted to field-relative based on which side we're on
-        var fieldChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-          (inputYMPS * invert), // Use Y as X for field-relative
-          (inputXMPS * invert), // Use X as Y for field-relative
-          inputRotationRadiansPS,
-          m_inputs.GyroAngle
-        );
+      // Drive the robot with the driver-relative inputs, converted to field-relative based on which
+      // side we're on
+      // Use Y as X for field-relative
+      var fieldChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds((inputYMPS * invert), (inputXMPS * invert),
+          inputRotationRadiansPS, m_inputs.GyroAngle);
 
-        driveFieldRelative(fieldChassisSpeeds);
-      });
+      driveFieldRelative(fieldChassisSpeeds);
+    });
   }
 
   /**
    * Creates a command that drives the robot using input controls
+   * 
    * @param controlSuppliers Controller input suppliers
    */
   public Command driveRobotRelativeCommand(SwerveControlSuppliers controlSuppliers) {
     return this.run(() -> {
-        // If the driver is trying to rotate the robot, disable snap-to control
-        if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
-          setSnapToEnabled(false);
-          m_clearForegroundPatternFunc.run();
-        }
+      // If the driver is trying to rotate the robot, disable snap-to control
+      if (Math.abs(controlSuppliers.Z.getAsDouble()) > 0.2) {
+        setSnapToEnabled(false);
+        m_clearForegroundPatternFunc.run();
+      }
 
-        // Convert inputs to MPS
-        var inputXMPS = controlSuppliers.X.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
-        var inputYMPS = -controlSuppliers.Y.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
-        var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
+      // Convert inputs to MPS
+      var inputXMPS = controlSuppliers.X.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+      var inputYMPS = -controlSuppliers.Y.getAsDouble() * DriveMap.MaxSpeedMetersPerSecond;
+      var inputRotationRadiansPS = -controlSuppliers.Z.getAsDouble() * DriveMap.MaxAngularSpeedRadians;
 
-        // Build chassis speeds
-        var invert = Robot.onRedAlliance() ? -1 : 1;
+      // Build chassis speeds
+      var invert = Robot.onRedAlliance() ? -1 : 1;
 
-        // Drive the robot with the driver-relative inputs, converted to field-relative based on which side we're on
-        var robotChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-          (inputYMPS * invert), // Use Y as X for field-relative
-          (inputXMPS * invert), // Use X as Y for field-relative
-          inputRotationRadiansPS,
-          m_inputs.GyroAngle
-        );
+      // Drive the robot with the driver-relative inputs, converted to field-relative based on which
+      // side we're on
+      // Use Y as X for field-relative
+      var robotChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds((inputYMPS * invert), (inputXMPS * invert),
+          inputRotationRadiansPS, m_inputs.GyroAngle);
 
-        driveRobotRelative(robotChassisSpeeds);
-      });
+      driveRobotRelative(robotChassisSpeeds);
+    });
   }
 
   /**
@@ -329,6 +310,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   /**
    * Enables snap-to control and sets an angle setpoint
+   * 
    * @param angle
    */
   public Command setSnapToSetpointCommand(double angle) {
@@ -367,5 +349,5 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public Map<String, Command> getNamedCommands() {
     return Map.of("Enable_Lock_On", enableLockOn(), "Disable_Snap_To", disableSnapToCommand());
   }
-  //#endregion
+  // #endregion
 }

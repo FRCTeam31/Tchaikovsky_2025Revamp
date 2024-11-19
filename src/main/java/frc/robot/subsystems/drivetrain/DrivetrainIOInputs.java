@@ -4,15 +4,17 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import frc.robot.subsystems.drivetrain.swervemodule.SwerveModuleIOInputs;
 
 @Logged
 public class DrivetrainIOInputs {
-    public Rotation2d GyroAngle = new Rotation2d();
-    public double GyroAccelX = 0;
-    public double GyroAccelY = 0;
-    public double GyroAccelZ = 0;
-    public boolean SnapIsOnTarget = false;
-    public ChassisSpeeds RobotRelativeChassisSpeeds = new ChassisSpeeds();
-    public Pose2d EstimatedRobotPose = new Pose2d();
-    public double SnapCorrectionRadiansPerSecond = 0;
+  public Rotation2d GyroAngle = new Rotation2d();
+  public double GyroAccelX = 0;
+  public double GyroAccelY = 0;
+  public double GyroAccelZ = 0;
+  public boolean SnapIsOnTarget = false;
+  public ChassisSpeeds RobotRelativeChassisSpeeds = new ChassisSpeeds();
+  public Pose2d EstimatedRobotPose = new Pose2d();
+  public double SnapCorrectionRadiansPerSecond = 0;
+  public SwerveModuleIOInputs[] ModuleInputs = new SwerveModuleIOInputs[4];
 }

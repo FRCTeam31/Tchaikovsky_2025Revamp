@@ -8,14 +8,14 @@ import frc.robot.subsystems.drivetrain.swervemodule.struct.SwerveModuleIOOutputs
 @Logged
 public class SwerveModuleIOOutputs implements StructSerializable {
 
-    /** Struct for serialization. */
-    public static final SwerveModuleIOOutputsStruct struct = new SwerveModuleIOOutputsStruct();
+  /** Struct for serialization. */
+  public static final SwerveModuleIOOutputsStruct struct = new SwerveModuleIOOutputsStruct();
 
-    public SwerveModuleIOOutputs() { }
+  public SwerveModuleIOOutputs() {}
 
-    public SwerveModuleIOOutputs(SwerveModuleState desiredState) {
-        DesiredState = desiredState;
-    }
+  public SwerveModuleIOOutputs(SwerveModuleState desiredState) {
+    DesiredState = desiredState;
+  }
 
-    public SwerveModuleState DesiredState = new SwerveModuleState();
+  public SwerveModuleState DesiredState = new SwerveModuleState();
 }
