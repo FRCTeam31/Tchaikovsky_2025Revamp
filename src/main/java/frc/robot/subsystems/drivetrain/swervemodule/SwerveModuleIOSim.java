@@ -79,7 +79,7 @@ public class SwerveModuleIOSim implements ISwerveModuleIO {
     // Set the drive motor to the desired speed
     // Calculate target data to voltage data
     var velocityRadPerSec = desiredState.speedMetersPerSecond / (DriveMap.DriveWheelDiameterMeters / 2);
-    var driveAppliedVolts = m_driveFeedforward.calculate(velocityRadPerSec)
+    var driveAppliedVolts = m_driveFeedforward.calculate(Units.RadiansPerSecond.of(velocityRadPerSec)).magnitude()
         + m_driveFeedback.calculate(m_driveMotorSim.getAngularVelocityRadPerSec(), velocityRadPerSec);
     driveAppliedVolts = MathUtil.clamp(driveAppliedVolts, -12.0, 12.0);
 
