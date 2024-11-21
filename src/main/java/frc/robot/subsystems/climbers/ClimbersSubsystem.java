@@ -85,7 +85,7 @@ public class ClimbersSubsystem extends SubsystemBase {
      * Lowers the desired climber arm
      * @param side The side to lower
      * @param speed The speed to lower the arm at
-     */
+     */ 
 
     public void lowerArm(Side side, double speed) {
         if (side == Side.kLeft) {
