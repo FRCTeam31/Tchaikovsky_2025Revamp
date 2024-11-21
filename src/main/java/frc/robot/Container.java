@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.*;
 import frc.robot.maps.DriveMap;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import prime.control.Controls;
@@ -35,7 +36,7 @@ public class Container {
   @Logged(name = "Drive", importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
   // public Shooter Shooter;
-  // public Intake Intake;
+  public IntakeSubsystem Intake;
   // public Climbers Climbers;
   // public PwmLEDs LEDs;
   @Logged(name = "LEDs", importance = Importance.CRITICAL)
@@ -58,7 +59,7 @@ public class Container {
       // Shooter = new Shooter(
       // LEDs::clearForegroundPattern,
       // LEDs::setForegroundPattern);
-      // Intake = new Intake();
+      Intake = new IntakeSubsystem(isReal);
       // Climbers = new Climbers();
       // Compressor = new Compressor(30, PneumaticsModuleType.REVPH);
       // Compressor.enableDigital();
@@ -67,7 +68,7 @@ public class Container {
 
       // Register the named commands from each subsystem that may be used in PathPlanner
       NamedCommands.registerCommands(Drivetrain.getNamedCommands());
-      // NamedCommands.registerCommands(Intake.getNamedCommands());
+      NamedCommands.registerCommands(Intake.getNamedCommands());
       // NamedCommands.registerCommands(Shooter.getNamedCommands());
       // NamedCommands.registerCommands(m_combinedCommands.getNamedCommands(Shooter, Intake)); //
       // Register the combined named commands that use multiple subsystems
