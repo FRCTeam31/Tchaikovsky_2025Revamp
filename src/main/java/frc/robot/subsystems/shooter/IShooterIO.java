@@ -3,14 +3,12 @@ package frc.robot.subsystems.shooter;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Logged.Strategy;
 
-@Logged(strategy = Strategy.OPT_IN)
 public interface IShooterIO {
 
     /**
      * Gets the inputs from the robot to be used in the code
      * @return ShooterIOInputs
      */
-    @Logged(name = "Inputs", importance = Logged.Importance.CRITICAL)
     public ShooterIOInputs getInputs();
 
     /**

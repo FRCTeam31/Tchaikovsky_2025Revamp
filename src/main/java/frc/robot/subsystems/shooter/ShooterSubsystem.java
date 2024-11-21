@@ -37,12 +37,12 @@ public class ShooterSubsystem extends SubsystemBase {
   private LEDPattern m_noteDetectedLEDPattern = LEDPattern.solid(Color.kOrange)
     .blink(Units.Seconds.of(0.2));
 
-   @Logged(name = "ShooterIO", importance = Logged.Importance.CRITICAL)
   private IShooterIO m_shooterio = (
     Robot.isReal()
     ? new ShooterIOReal() 
     : new ShooterIOSim()
   );
+  @Logged(name = "ShooterIOInputs", importance = Logged.Importance.CRITICAL)
   private ShooterIOInputs m_inputs;
   @Logged(name = "ShooterIOOutputs", importance = Logged.Importance.CRITICAL)
   private ShooterIOOutputs m_outputs;
