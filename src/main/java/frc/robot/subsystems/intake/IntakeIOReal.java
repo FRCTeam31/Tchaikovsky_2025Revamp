@@ -39,11 +39,9 @@ public class IntakeIOReal implements IIntakeIO {
     m_angleRight.setInverted(VMap.NeoRightInverted);
     m_angleRight.setSmartCurrentLimit(40, 60);
 
-    m_inputs.AngleStartPoint = getPositionRight();
+    m_inputs.AngleStartPoint = m_angleRight.getEncoder().getPosition();
     SmartDashboard.putNumber("Intake/AngleStartPoint", m_inputs.AngleStartPoint);
-
-    m_anglePid = VMap.IntakeAnglePid.createPIDController(0.02);
-    m_anglePid.setSetpoint(m_inputs.AngleStartPoint);
+  }
 
   @Override
   public IntakeIOInputs getInputs() {
@@ -51,9 +49,22 @@ public class IntakeIOReal implements IIntakeIO {
     m_inputs.intakeMotorRightPosition = m_angleRight.getEncoder().getPosition();
     m_inputs.bottomLimitSwitch = m_bottomLimitSwitch.get();
     m_inputs.topLimitSwitch = m_topLimitSwitch.get();
+
+    return m_inputs;
   }
   @Override
   public void setOutputs(IntakeIOOutputs outputs) {
+    m_angleLeft.set(outputs.leftMotorOutput);
+    m_angleRight.set(outputs.rightMotorOutput);
+    m_rollers.set(outputs.rollerMotorOutput);
+  }
 
+  public void stopAngleMotors() {
+    m_angleLeft.stopMotor();
+    m_angleRight.stopMotor();
+  }
+
+  public void stopRollerMotors() {
+    m_rollers.stopMotor();
   }
 }

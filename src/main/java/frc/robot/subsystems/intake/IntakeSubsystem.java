@@ -1,11 +1,8 @@
 package frc.robot.subsystems.intake;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -179,8 +176,7 @@ private IntakeIOInputs m_inputs = new IntakeIOInputs();
    */
   public Command stopArmMotorsCommand() {
     return Commands.runOnce(() -> {
-      m_angleLeft.stopMotor();
-      m_angleRight.stopMotor();
+      m_intakeIO.stopAngleMotors();
     });
   }
 
@@ -190,7 +186,7 @@ private IntakeIOInputs m_inputs = new IntakeIOInputs();
    */
   public Command stopRollersCommand() {
     return Commands.runOnce(() -> {
-      m_rollers.stopMotor();
+      m_intakeIO.stopRollerMotors();
     });
   }
 
