@@ -7,8 +7,8 @@ import frc.robot.subsystems.drivetrain.DrivetrainSubsystem.DrivetrainControlMode
 
 @Logged
 public class DrivetrainIOOutputs {
-    public boolean SnapEnabled = false;
-    public Rotation2d SnapSetpoint = new Rotation2d();
-    public ChassisSpeeds DesiredChassisSpeeds = new ChassisSpeeds();
-    public DrivetrainControlMode ControlMode = DrivetrainControlMode.kRobotRelative;
+  public boolean SnapEnabled = false;
+  public Rotation2d SnapSetpoint = new Rotation2d();
+  public ChassisSpeeds DesiredChassisSpeeds = new ChassisSpeeds();
+  public DrivetrainControlMode ControlMode = DrivetrainControlMode.kRobotRelative;
 }

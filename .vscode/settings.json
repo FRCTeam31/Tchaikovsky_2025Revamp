@@ -26,12 +26,14 @@
     },
   ],
   "java.test.defaultConfig": "WPIlibUnitTests",
+  "java.format.settings.url": "formatter.xml",
   "[java]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.codeActionsOnSave": [
       "editor.action.formatDocument",
-    ]
+    ],
+    "editor.detectIndentation": false,
+    "editor.tabSize": 2
   },
 }

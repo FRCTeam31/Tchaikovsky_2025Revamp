@@ -43,7 +43,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
   private SwerveModuleIOInputs m_rearLeftInputs;
   @Logged(name = "RearRightInputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOInputs m_rearRightInputs;
-  
+
   @Logged(name = "FrontLeftOutputs", importance = Logged.Importance.CRITICAL)
   private SwerveModuleIOOutputs m_frontLeftOutputs;
   @Logged(name = "FrontRightOutputs", importance = Logged.Importance.CRITICAL)
@@ -71,17 +71,13 @@ public class DrivetrainIOReal implements IDrivetrainIO {
     m_snapAngleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // Create kinematics in order FL, FR, RL, RR
-    m_kinematics =
-      new SwerveDriveKinematics(
-        DriveMap.FrontLeftSwerveModule.ModuleLocation,
-        DriveMap.FrontRightSwerveModule.ModuleLocation,
-        DriveMap.RearLeftSwerveModule.ModuleLocation,
-        DriveMap.RearRightSwerveModule.ModuleLocation
-      );
+    m_kinematics = new SwerveDriveKinematics(DriveMap.FrontLeftSwerveModule.ModuleLocation,
+        DriveMap.FrontRightSwerveModule.ModuleLocation, DriveMap.RearLeftSwerveModule.ModuleLocation,
+        DriveMap.RearRightSwerveModule.ModuleLocation);
 
     // Create pose estimator
     m_poseEstimator =
-      new SwerveDrivePoseEstimator(m_kinematics, m_gyro.getRotation2d(), getModulePositions(), new Pose2d());
+        new SwerveDrivePoseEstimator(m_kinematics, m_gyro.getRotation2d(), getModulePositions(), new Pose2d());
   }
 
   @Override
@@ -90,6 +86,9 @@ public class DrivetrainIOReal implements IDrivetrainIO {
     m_frontRightInputs = m_frontRightModule.getInputs();
     m_rearLeftInputs = m_rearLeftModule.getInputs();
     m_rearRightInputs = m_rearRightModule.getInputs();
+    m_inputs.ModuleInputs = new SwerveModuleIOInputs[] {
+        m_frontLeftInputs, m_frontRightInputs, m_rearLeftInputs, m_rearRightInputs
+    };
 
     m_inputs.GyroAngle = m_gyro.getRotation2d();
     m_inputs.GyroAccelX = m_gyro.getAccelerationX().getValueAsDouble();
@@ -164,10 +163,12 @@ public class DrivetrainIOReal implements IDrivetrainIO {
 
   /**
    * Drives robot-relative using a ChassisSpeeds
+   * 
    * @param desiredChassisSpeeds The desired speeds of the robot
    */
   private void driveRobotRelative(ChassisSpeeds desiredChassisSpeeds, boolean snapAngleEnabled) {
-    // If snap-to is enabled, calculate and override the input rotational speed to reach the setpoint
+    // If snap-to is enabled, calculate and override the input rotational speed to reach the
+    // setpoint
     if (snapAngleEnabled) {
       var currentRotationRadians = MathUtil.angleModulus(m_gyro.getRotation2d().getRadians());
       var snapCorrection = m_snapAngleController.calculate(currentRotationRadians);
@@ -178,7 +179,8 @@ public class DrivetrainIOReal implements IDrivetrainIO {
       m_inputs.SnapIsOnTarget = Math.abs(desiredChassisSpeeds.omegaRadiansPerSecond) < 0.1;
     }
 
-    // Correct drift by taking the input speeds and converting them to a desired per-period speed. This is known as "discretizing"
+    // Correct drift by taking the input speeds and converting them to a desired per-period speed.
+    // This is known as "discretizing"
     desiredChassisSpeeds = ChassisSpeeds.discretize(desiredChassisSpeeds, 0.02);
 
     // Calculate the module states from the chassis speeds
@@ -191,6 +193,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
 
   /**
    * Facilitates driving using PathPlanner generated speeds
+   * 
    * @param robotRelativeSpeeds
    */
   private void drivePathPlanner(ChassisSpeeds robotRelativeSpeeds) {
@@ -210,6 +213,7 @@ public class DrivetrainIOReal implements IDrivetrainIO {
 
   /**
    * Sets the desired states for each swerve module in order FL, FR, RL, RR
+   * 
    * @param desiredStates
    */
   private void setDesiredModuleStates(SwerveModuleState[] desiredStates) {
@@ -224,10 +228,8 @@ public class DrivetrainIOReal implements IDrivetrainIO {
    */
   public SwerveModuleState[] getModuleStates() {
     return new SwerveModuleState[] {
-      m_frontLeftInputs.ModuleState,
-      m_frontRightInputs.ModuleState,
-      m_rearLeftInputs.ModuleState,
-      m_rearRightInputs.ModuleState,
+        m_frontLeftInputs.ModuleState, m_frontRightInputs.ModuleState, m_rearLeftInputs.ModuleState,
+        m_rearRightInputs.ModuleState,
     };
   }
 
@@ -236,10 +238,8 @@ public class DrivetrainIOReal implements IDrivetrainIO {
    */
   public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] {
-      m_frontLeftInputs.ModulePosition,
-      m_frontRightInputs.ModulePosition,
-      m_rearLeftInputs.ModulePosition,
-      m_rearRightInputs.ModulePosition,
+        m_frontLeftInputs.ModulePosition, m_frontRightInputs.ModulePosition, m_rearLeftInputs.ModulePosition,
+        m_rearRightInputs.ModulePosition,
     };
   }
 }
