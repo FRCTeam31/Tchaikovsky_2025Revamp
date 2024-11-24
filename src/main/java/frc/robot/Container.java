@@ -31,16 +31,16 @@ public class Container {
   private PrimeXboxController m_driverController;
   private PrimeXboxController m_operatorController;
 
-  @Logged(name="Vision", importance = Importance.CRITICAL)
+  @Logged(name = "Vision", importance = Importance.CRITICAL)
   public VisionSubsystem Vision;
-  @Logged(name="Drive", importance = Importance.CRITICAL)
+  @Logged(name = "Drive", importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
-  @Logged(name="Shooter", importance = Importance.CRITICAL)
+  @Logged(name = "Shooter", importance = Importance.CRITICAL)
   public ShooterSubsystem Shooter;
   // public Intake Intake;
   // public Climbers Climbers;
   // public PwmLEDs LEDs;
-  @Logged(name="LEDs", importance = Importance.CRITICAL)
+  @Logged(name = "LEDs", importance = Importance.CRITICAL)
   public PwmLEDs LEDs;
   // public Compressor Compressor;
 
@@ -55,13 +55,9 @@ public class Container {
       // Create new subsystems
       LEDs = new PwmLEDs();
       Vision = new VisionSubsystem();
-      Drivetrain = new DrivetrainSubsystem(isReal, 
-        LEDs::clearForegroundPattern, 
-        LEDs::setForegroundPattern, 
-        Vision::getAllLimelightInputs);  
-      Shooter = new ShooterSubsystem(
-        LEDs::clearForegroundPattern,
-        LEDs::setForegroundPattern);
+      Drivetrain = new DrivetrainSubsystem(isReal, LEDs::clearForegroundPattern, LEDs::setForegroundPattern,
+          Vision::getAllLimelightInputs);
+      Shooter = new ShooterSubsystem(LEDs::clearForegroundPattern, LEDs::setForegroundPattern);
       // Intake = new Intake();
       // Climbers = new Climbers();
       // Compressor = new Compressor(30, PneumaticsModuleType.REVPH);
@@ -73,7 +69,8 @@ public class Container {
       NamedCommands.registerCommands(Drivetrain.getNamedCommands());
       // NamedCommands.registerCommands(Intake.getNamedCommands());
       // NamedCommands.registerCommands(Shooter.getNamedCommands());
-      // NamedCommands.registerCommands(m_combinedCommands.getNamedCommands(Shooter, Intake)); // Register the combined named commands that use multiple subsystems
+      // NamedCommands.registerCommands(m_combinedCommands.getNamedCommands(Shooter, Intake)); //
+      // Register the combined named commands that use multiple subsystems
 
       // Create Auto chooser and Auto tab in Shuffleboard
       configAutonomousDashboardItems();
@@ -103,6 +100,7 @@ public class Container {
 
   /**
    * Returns the selected autonomous command to run
+   * 
    * @return
    */
   public Command getAutonomousCommand() {
@@ -115,15 +113,8 @@ public class Container {
   public void configureDriverControls() {
     // Controls for Driving
     m_driverController.a().onTrue(Drivetrain.resetGyroCommand());
-    Drivetrain.setDefaultCommand(
-      Drivetrain.driveRobotRelativeCommand(
-        m_driverController.getSwerveControlProfile(
-          HolonomicControlStyle.Drone,
-          DriveMap.DriveDeadband,
-          DriveMap.DeadbandCurveWeight
-        )
-      )
-    );
+    Drivetrain.setDefaultCommand(Drivetrain.driveFieldRelativeCommand(m_driverController
+        .getSwerveControlProfile(HolonomicControlStyle.Drone, DriveMap.DriveDeadband, DriveMap.DeadbandCurveWeight)));
 
     // While holding b, auto-aim the robot to the apriltag target using snap-to
     m_driverController.leftStick().whileTrue(Drivetrain.enableLockOn()).onFalse(Drivetrain.disableSnapToCommand());
@@ -139,12 +130,12 @@ public class Container {
     // m_driverController.y().onTrue(Climbers.toggleClimbControlsCommand());
     // m_driverController.start().onTrue(Climbers.setArmsUpCommand());
     // Climbers.setDefaultCommand(
-    //   Climbers.defaultClimbingCommand(
-    //     m_driverController.button(Controls.RB),
-    //     m_driverController.button(Controls.LB),
-    //     () -> m_driverController.getRawAxis(Controls.RIGHT_TRIGGER),
-    //     () -> m_driverController.getRawAxis(Controls.LEFT_TRIGGER)
-    //   )
+    // Climbers.defaultClimbingCommand(
+    // m_driverController.button(Controls.RB),
+    // m_driverController.button(Controls.LB),
+    // () -> m_driverController.getRawAxis(Controls.RIGHT_TRIGGER),
+    // () -> m_driverController.getRawAxis(Controls.LEFT_TRIGGER)
+    // )
     // );
   }
 
@@ -153,35 +144,36 @@ public class Container {
    */
   public void configureOperatorControls() {
     // Intake ========================================
-    // m_operatorController.a().onTrue(Intake.toggleIntakeInAndOutCommand()); // Set intake angle in/out
+    // m_operatorController.a().onTrue(Intake.toggleIntakeInAndOutCommand()); // Set intake angle
+    // in/out
 
     // m_operatorController // When the trigger is pressed, intake a note at a variable speed
-    //   .leftTrigger(0.1)
-    //   .whileTrue(Intake.runRollersAtSpeedCommand(() -> m_operatorController.getLeftTriggerAxis()))
-    //   .onFalse(Intake.stopRollersCommand());
+    // .leftTrigger(0.1)
+    // .whileTrue(Intake.runRollersAtSpeedCommand(() -> m_operatorController.getLeftTriggerAxis()))
+    // .onFalse(Intake.stopRollersCommand());
 
     // m_operatorController // When the trigger is pressed, eject a note at a constant speed
-    //   .rightTrigger(0.1)
-    //   .whileTrue(Intake.ejectNoteCommand())
-    //   .onFalse(Intake.stopRollersCommand());
+    // .rightTrigger(0.1)
+    // .whileTrue(Intake.ejectNoteCommand())
+    // .onFalse(Intake.stopRollersCommand());
 
     // // Shooter ========================================
     // m_operatorController // Toggle the elevation of the shooter
-    //   .rightBumper()
-    //   .onTrue(Shooter.toggleElevationCommand());
+    // .rightBumper()
+    // .onTrue(Shooter.toggleElevationCommand());
 
     // m_operatorController // Runs only the shooter motors at a constant speed to score in the amp
-    //   .x()
-    //   .whileTrue(Shooter.startShootingNoteCommand())
-    //   .onFalse(Shooter.stopMotorsCommand());
+    // .x()
+    // .whileTrue(Shooter.startShootingNoteCommand())
+    // .onFalse(Shooter.stopMotorsCommand());
 
     // // Combined shooter and intake commands ===========
     // m_operatorController // score in speaker
-    //   .b()
-    //   .onTrue(m_combinedCommands.scoreInSpeakerSequentialGroup(Shooter, Intake));
+    // .b()
+    // .onTrue(m_combinedCommands.scoreInSpeakerSequentialGroup(Shooter, Intake));
 
     // m_operatorController // Run sequence to load a note into the shooter for scoring in the amp
-    //   .y()
-    //   .onTrue(m_combinedCommands.loadNoteForAmp(Shooter, Intake));
+    // .y()
+    // .onTrue(m_combinedCommands.loadNoteForAmp(Shooter, Intake));
   }
 }
