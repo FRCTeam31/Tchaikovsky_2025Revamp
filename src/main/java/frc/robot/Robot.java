@@ -99,7 +99,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
 
       // Stop the shooter and intake motors in case they're still running and set the intake IN
-      // m_robotContainer.Shooter.stopMotorsCommand().schedule();
+      m_robotContainer.Shooter.stopMotorsCommand().schedule();
       // m_robotContainer.Intake.stopRollersCommand().schedule();
       // m_robotContainer.Intake.setIntakeInCommand().schedule();
     }
@@ -134,7 +134,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
 
       // Stop the shooter and intake motors in case they're still running
-      // m_robotContainer.Shooter.stopMotorsCommand().schedule();
+      m_robotContainer.Shooter.stopMotorsCommand().schedule();
       // m_robotContainer.Intake.stopRollersCommand().schedule();
     }
 

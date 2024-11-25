@@ -1,29 +1,22 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.LEDPattern;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class Shooter extends SubsystemBase {
+@Logged(strategy = Strategy.OPT_IN)
+public class ShooterSubsystem extends SubsystemBase {
 
   public static class VMap {
 
@@ -36,11 +29,6 @@ public class Shooter extends SubsystemBase {
     public static final int ElevationSolenoidReverseChannel = 7;
   }
 
-  private TalonFX m_talonFX;
-  private VictorSPX m_victorSPX;
-  private DoubleSolenoid m_elevationSolenoid;
-  private DigitalInput m_noteDetector;
-
   private Runnable m_clearForegroundPatternFunc;
   private Consumer<LEDPattern> m_setForegroundPatternFunc;
   private LEDPattern m_elevatorUpLEDPattern = LEDPattern.solid(Color.kWhite);
@@ -49,38 +37,31 @@ public class Shooter extends SubsystemBase {
   private LEDPattern m_noteDetectedLEDPattern = LEDPattern.solid(Color.kOrange)
     .blink(Units.Seconds.of(0.2));
 
+  private IShooterIO m_shooterio = (
+    Robot.isReal()
+    ? new ShooterIOReal() 
+    : new ShooterIOSim()
+  );
+  @Logged(name = "ShooterIOInputs", importance = Logged.Importance.CRITICAL)
+  private ShooterIOInputs m_inputs;
+  @Logged(name = "ShooterIOOutputs", importance = Logged.Importance.CRITICAL)
+  private ShooterIOOutputs m_outputs;
+
   // #endregion
 
   /**
    * Creates a new Shooter with a given configuration
    * @param config
    */
-  public Shooter(
+  public ShooterSubsystem(
     Runnable restoreLEDPersistentPatternFunc,
     Consumer<LEDPattern> setLEDTemporaryPatternFunc
   ) {
     setName("Shooter");
 
-    m_talonFX = new TalonFX(VMap.TalonFXCanID);
-    var talonConfig = new TalonFXConfiguration();
-    talonConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-    m_talonFX.getConfigurator().apply(talonConfig);
-    m_talonFX.setNeutralMode(NeutralModeValue.Brake);
-
-    m_victorSPX = new VictorSPX(VMap.VictorSPXCanID);
-    m_victorSPX.configFactoryDefault();
-    m_victorSPX.setNeutralMode(NeutralMode.Brake);
-
-    m_elevationSolenoid =
-      new DoubleSolenoid(
-        30,
-        PneumaticsModuleType.REVPH,
-        VMap.ElevationSolenoidForwardChannel,
-        VMap.ElevationSolenoidReverseChannel
-      );
-
-    m_noteDetector = new DigitalInput(VMap.NoteDetectorDIOChannel);
-
+    m_inputs = m_shooterio.getInputs();
+    m_outputs = new ShooterIOOutputs();
+    
     m_clearForegroundPatternFunc = restoreLEDPersistentPatternFunc;
     m_setForegroundPatternFunc = setLEDTemporaryPatternFunc;
   }
@@ -92,33 +73,50 @@ public class Shooter extends SubsystemBase {
    * @param speed
    */
   public void runShooter(double speed) {
-    m_talonFX.set(speed);
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed * 3);
+    m_outputs.TalonSpeed = speed;
+    m_outputs.VictorSpeed = speed * 3;
   }
 
   public void runGreenWheel(double speed) {
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, speed);
+    m_outputs.VictorSpeed = speed;
   }
 
   /**
    * Stops the shooter motors
+   * @implNote Version declared in the ShooterSubsystem.
+   * This is the method that, unlike StopMotors(), interacts with the lights on the robot. Because of this, this method will be used almost everywhere.
+   * ( StopMotors() in IShooterIO behaves more like multiple lines of code stopping the motors, while stopMotors() in ShooterSubsystem ties it all together. ) 
+   * @see IShooterIO StopMotors()
    */
   public void stopMotors() {
-    m_talonFX.stopMotor();
-    m_victorSPX.set(VictorSPXControlMode.PercentOutput, 0);
+    m_shooterio.StopMotors();
+
+    m_outputs.TalonSpeed = 0;
+    m_outputs.VictorSpeed = 0;
+    
     m_clearForegroundPatternFunc.run();
   }
 
   /**
    * Gets a boolean indicating whether a note is blocking the beam sensor
-   * @return
+   * @return boolean
    */
   public boolean isNoteLoaded() {
-    return !m_noteDetector.get();
+    return m_inputs.NoteDetectorState;
   }
 
+  /**
+   * Sets the elevator to either kForward or kReverse ( kOff not supported and will instead act as if it is kReverse ).
+   * Works by checking if value is kForward, then setting ElevationSolenoidValue to true if they are equal and false if they are not.
+   * @implNote A positive ElevationSolenoidValue corresponds to kForward and vice versa
+   * @param value
+   */
   public void setElevator(Value value) {
-    m_elevationSolenoid.set(value);
+    m_outputs.ElevationSolenoidValue = (
+      value == Value.kForward
+      ? true
+      : false
+    );
   }
 
   public void setElevatorUp() {
@@ -137,6 +135,9 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Get inputs
+    m_inputs = m_shooterio.getInputs();
+
     var newNoteDetectedValue = isNoteLoaded();
     if (newNoteDetectedValue != m_lastNoteDetectedValue) {
       if (newNoteDetectedValue && !m_lastNoteDetectedValue) {
@@ -147,12 +148,15 @@ public class Shooter extends SubsystemBase {
 
       // Save the new value
       m_lastNoteDetectedValue = newNoteDetectedValue;
+
+      // Send outputs to the shooter IO
+      m_shooterio.setOutputs(m_outputs);
     }
 
     // Level2 Logging
-    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", m_talonFX.get());
-    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", m_talonFX.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter/GuideMotorOutput", m_victorSPX.getMotorOutputPercent());
+    SmartDashboard.putNumber("Shooter/LaunchMotorOutput", m_inputs.TalonState);
+    SmartDashboard.putNumber("Shooter/LaunchMotorVelocity", m_inputs.TalonVelocity);
+    SmartDashboard.putNumber("Shooter/GuideMotorOutput", m_inputs.VictorOutput);
     SmartDashboard.putBoolean("Shooter/NoteDetected", newNoteDetectedValue);
   }
 
@@ -160,7 +164,7 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Stops the shooter motors
-   * @return
+   * @return Command
    */
   public Command stopMotorsCommand() {
     return Commands.runOnce(() -> stopMotors());
@@ -168,7 +172,7 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Shootes a note at half speed
-   * @return
+   * @return Command
    */
   public Command scoreInAmpCommand() {
     return Commands.run(() -> runShooter(0.5));
@@ -176,7 +180,7 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Shootes a note at full speed
-   * @return
+   * @return Command
    */
   public Command startShootingNoteCommand() {
     return Commands.runOnce(() -> {
@@ -187,7 +191,7 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Sets the elevation of the shooter all the way up
-   * @return
+   * @return Command
    */
   public Command setElevationUpCommand() {
     return Commands.runOnce(this::setElevatorUp);
@@ -195,7 +199,7 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Sets the elevation of the shooter all the way down
-   * @return
+   * @return Command
    */
   public Command setElevationDownCommand() {
     return Commands.runOnce(this::setElevatorDown);
@@ -203,14 +207,21 @@ public class Shooter extends SubsystemBase {
 
   /**
    * Toggles the elevation of the shooter up/down
-   * @return
+   * @return Command
    */
   public Command toggleElevationCommand() {
     return Commands.runOnce(() -> {
-      if (m_elevationSolenoid.get() == Value.kForward) setElevatorDown(); else setElevatorUp();
+      if (m_inputs.ElevationSolenoidState == true) {
+        setElevatorDown();
+      } else {
+        setElevatorUp();
+      }
     });
   }
 
+  /**
+   * Links named commands used in PathPlanner to methods in the subsystem
+   */
   public Map<String, Command> getNamedCommands() {
     return Map.of(
       "Set_Elevation_Up",

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.*;
 import frc.robot.maps.DriveMap;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.vision.VisionSubsystem;
 
 import prime.control.Controls;
@@ -34,7 +35,8 @@ public class Container {
   public VisionSubsystem Vision;
   @Logged(name = "Drive", importance = Importance.CRITICAL)
   public DrivetrainSubsystem Drivetrain;
-  // public Shooter Shooter;
+  @Logged(name = "Shooter", importance = Importance.CRITICAL)
+  public ShooterSubsystem Shooter;
   // public Intake Intake;
   // public Climbers Climbers;
   // public PwmLEDs LEDs;
@@ -55,9 +57,7 @@ public class Container {
       Vision = new VisionSubsystem();
       Drivetrain = new DrivetrainSubsystem(isReal, LEDs::clearForegroundPattern, LEDs::setForegroundPattern,
           Vision::getAllLimelightInputs);
-      // Shooter = new Shooter(
-      // LEDs::clearForegroundPattern,
-      // LEDs::setForegroundPattern);
+      Shooter = new ShooterSubsystem(LEDs::clearForegroundPattern, LEDs::setForegroundPattern);
       // Intake = new Intake();
       // Climbers = new Climbers();
       // Compressor = new Compressor(30, PneumaticsModuleType.REVPH);
