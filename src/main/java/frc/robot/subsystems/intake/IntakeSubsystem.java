@@ -1,12 +1,8 @@
-package frc.robot.subsystems;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,7 +11,7 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 import prime.control.PrimePIDConstants;
 
-public class Intake extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
 
   public static class VMap {
 
@@ -31,48 +27,30 @@ public class Intake extends SubsystemBase {
     public static final int BottomLimitSwitchChannel = 5;
   }
 
-  private DigitalInput m_topLimitSwitch;
-  private DigitalInput m_bottomLimitSwitch;
-
-  private CANSparkMax m_rollers;
-  private CANSparkMax m_angleLeft;
-  private CANSparkMax m_angleRight;
-
+  private boolean m_angleToggledIn = true;
+  private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth); //output
   private PIDController m_anglePid;
-  private double m_angleStartPoint;
-  public boolean m_angleToggledIn;
-  private Debouncer m_angleToggleDebouncer = new Debouncer(0.1, Debouncer.DebounceType.kBoth);
+
+  private IIntakeIO m_intakeIO;
+private IntakeIOInputs m_inputs = new IntakeIOInputs();
+  private IntakeIOOutputs m_outputs = new IntakeIOOutputs();
 
   /**
    * Creates a new Intake subsystem
    * @param robotConfig
    */
-  public Intake() {
+  public IntakeSubsystem(boolean isReal) {
     setName("Intake");
-    m_topLimitSwitch = new DigitalInput(VMap.TopLimitSwitchChannel);
-    m_bottomLimitSwitch = new DigitalInput(VMap.BottomLimitSwitchChannel);
+    if (isReal) {
+      m_intakeIO = new IntakeIOReal();
+    } else {
+      m_intakeIO = new IntakeIOSim();
+    }
 
-    m_rollers = new CANSparkMax(VMap.RollersCanId, MotorType.kBrushless);
-    m_rollers.restoreFactoryDefaults();
-    m_rollers.setInverted(VMap.RollersInverted);
-    m_rollers.setSmartCurrentLimit(40, 50);
-    // m_rollers.setOpenLoopRampRate(0.250);
-
-    m_angleLeft = new CANSparkMax(VMap.NeoLeftCanId, MotorType.kBrushless);
-    m_angleLeft.restoreFactoryDefaults();
-    m_angleLeft.setInverted(VMap.NeoLeftInverted);
-    m_angleLeft.setSmartCurrentLimit(40, 60);
-
-    m_angleRight = new CANSparkMax(VMap.NeoRightCanId, MotorType.kBrushless);
-    m_angleRight.restoreFactoryDefaults();
-    m_angleRight.setInverted(VMap.NeoRightInverted);
-    m_angleRight.setSmartCurrentLimit(40, 60);
-
-    m_angleStartPoint = getPositionRight();
-    SmartDashboard.putNumber("Intake/AngleStartPoint", m_angleStartPoint);
+    SmartDashboard.putNumber("Intake/AngleStartPoint", m_inputs.AngleStartPoint);
 
     m_anglePid = VMap.IntakeAnglePid.createPIDController(0.02);
-    m_anglePid.setSetpoint(m_angleStartPoint);
+    m_anglePid.setSetpoint(m_inputs.AngleStartPoint);
     m_angleToggledIn = true;
 
     // Set the default command for the subsystem so that it runs the PID loop
@@ -81,28 +59,13 @@ public class Intake extends SubsystemBase {
 
   //#region Control Methods
 
-  /**
-   * Gets the current position of the Intake Angle from the right NEO's encoder
-   * @return
-   */
-  public double getPositionRight() {
-    return m_angleRight.getEncoder().getPosition();
-  }
-
-  /**
-   * Gets the current position of the Intake Angle from the left NEO's encoder
-   * @return
-   */
-  public double getPositionLeft() {
-    return m_angleLeft.getEncoder().getPosition();
-  }
-
+  
   /**
    * Runs intake rollers at a given speed
    * @param speed
    */
   public void runIntakeRollers(double speed) {
-    m_rollers.set(speed);
+    m_outputs.rollerMotorOutput = speed;
   }
 
   /**
@@ -110,8 +73,8 @@ public class Intake extends SubsystemBase {
    * @param speed
    */
   public void setAngleMotorSpeed(double speed) {
-    m_angleLeft.set(-speed);
-    m_angleRight.set(speed);
+    m_outputs.leftMotorOutput = -speed;
+    m_outputs.rightMotorOutput = speed;
   }
 
   /**
@@ -119,18 +82,18 @@ public class Intake extends SubsystemBase {
    * @param positionSetpoint
    */
   public void setIntakeRotation() {
-    var currentPosition = getPositionRight();
-    var setpoint = m_angleToggledIn ? m_angleStartPoint : (m_angleStartPoint - VMap.PositionDelta);
+    var currentPosition = m_inputs.intakeMotorRightPosition;
+    var setpoint = m_angleToggledIn ? m_inputs.AngleStartPoint : (m_inputs.AngleStartPoint - VMap.PositionDelta);
     SmartDashboard.putNumber("Intake/AngleSetpoint", setpoint);
 
     var pidOutput = m_anglePid.calculate(currentPosition, setpoint);
     SmartDashboard.putNumber("Intake/AnglePIDOutput", pidOutput);
 
     // artificial limits
-    if (currentPosition < m_angleStartPoint && pidOutput > 0 && !m_topLimitSwitch.get()) {
+    if (currentPosition < m_inputs.AngleStartPoint && pidOutput > 0 && !m_inputs.topLimitSwitch) {
       setAngleMotorSpeed(MathUtil.clamp(pidOutput, 0, 1));
     } else if (
-      currentPosition > (m_angleStartPoint - VMap.PositionDelta) && pidOutput < 0 && !m_bottomLimitSwitch.get()
+      currentPosition > (m_inputs.AngleStartPoint - VMap.PositionDelta) && pidOutput < 0 && !m_inputs.bottomLimitSwitch
     ) {
       setAngleMotorSpeed(MathUtil.clamp(pidOutput, -1, 0));
     } else {
@@ -143,15 +106,15 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // Level2 Logging
-    SmartDashboard.putBoolean("Intake/ToggledIn", m_angleToggledIn);
+    // SmartDashboard.putBoolean("Intake/ToggledIn", m_angleToggledIn);
 
-    SmartDashboard.putNumber("Intake/ArmPositionRight", getPositionRight());
-    SmartDashboard.putNumber("Intake/ArmPositionLeft", getPositionLeft());
+    // SmartDashboard.putNumber("Intake/ArmPositionRight", getPositionRight());
+    // SmartDashboard.putNumber("Intake/ArmPositionLeft", getPositionLeft());
 
-    SmartDashboard.putNumber("Intake/RightMotorOutput", m_angleRight.get());
-    SmartDashboard.putNumber("Intake/LeftMotorOutput", m_angleLeft.get());
+    // SmartDashboard.putNumber("Intake/RightMotorOutput", m_angleRight.get());
+    // SmartDashboard.putNumber("Intake/LeftMotorOutput", m_angleLeft.get());
 
-    SmartDashboard.putNumber("Intake/RollersOutput", m_rollers.get());
+    // SmartDashboard.putNumber("Intake/RollersOutput", m_rollers.get());
   }
 
   //#region Commands
@@ -213,8 +176,7 @@ public class Intake extends SubsystemBase {
    */
   public Command stopArmMotorsCommand() {
     return Commands.runOnce(() -> {
-      m_angleLeft.stopMotor();
-      m_angleRight.stopMotor();
+      m_intakeIO.stopAngleMotors();
     });
   }
 
@@ -224,7 +186,7 @@ public class Intake extends SubsystemBase {
    */
   public Command stopRollersCommand() {
     return Commands.runOnce(() -> {
-      m_rollers.stopMotor();
+      m_intakeIO.stopRollerMotors();
     });
   }
 
