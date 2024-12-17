@@ -36,4 +36,5 @@
     "editor.detectIndentation": false,
     "editor.tabSize": 2
   },
+  "java.import.gradle.annotationProcessing.enabled": false
 }
