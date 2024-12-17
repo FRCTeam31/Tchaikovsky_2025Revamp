@@ -1,9 +1,11 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.climbers;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -20,7 +22,8 @@ import frc.robot.DriverDashboard;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-public class Climbers extends SubsystemBase {
+@Logged(strategy = Strategy.OPT_IN)
+public class ClimbersSubsystem extends SubsystemBase {
 
   public static class VMap {
 
@@ -43,17 +46,9 @@ public class Climbers extends SubsystemBase {
     kRight,
   }
 
-  // Motors
-  private VictorSPX m_leftVictorSPX;
-  private VictorSPX m_rightVictorSPX;
-
-  // Limit Switches
-  private DigitalInput m_leftLimitSwitch;
-  private DigitalInput m_rightLimitSwitch;
-
-  // Clutch Solenoids
-  private DoubleSolenoid m_clutchSolenoidLeft;
-  private DoubleSolenoid m_clutchSolenoidRight;
+  private IClimbersIO m_climbIO;
+  private ClimbersIOOutputs m_outputs = new ClimbersIOOutputs();
+  private ClimbersIOInputs m_Inputs = new ClimbersIOInputs();
 
   // Member to track if the climb controls are enabled
   private boolean m_climbControlsEnabled = false;
@@ -62,112 +57,98 @@ public class Climbers extends SubsystemBase {
    * Creates a new Climbers subsystem
    * @param config
    */
-  public Climbers() {
-    m_leftVictorSPX = new VictorSPX(VMap.VictorSPXLeftCanID);
-    m_leftVictorSPX.configFactoryDefault();
-    m_leftVictorSPX.setInverted(VMap.LeftInverted);
-    m_leftVictorSPX.setNeutralMode(NeutralMode.Brake);
-    m_leftVictorSPX.configOpenloopRamp(0.5);
-
-    m_rightVictorSPX = new VictorSPX(VMap.VictorSPXRightCanID);
-    m_rightVictorSPX.configFactoryDefault();
-    m_rightVictorSPX.setInverted(VMap.RightInverted);
-    m_rightVictorSPX.setNeutralMode(NeutralMode.Brake);
-    m_rightVictorSPX.configOpenloopRamp(0.5);
-
-    m_leftLimitSwitch = new DigitalInput(VMap.LeftLimitSwitchDIOChannel);
-    m_rightLimitSwitch = new DigitalInput(VMap.RightLimitSwitchDIOChannel);
-
-    m_clutchSolenoidLeft =
-      new DoubleSolenoid(
-        30,
-        PneumaticsModuleType.REVPH,
-        VMap.LeftSolenoidForwardChannel,
-        VMap.LeftSolenoidReverseChannel
-      );
-    m_clutchSolenoidRight =
-      new DoubleSolenoid(
-        30,
-        PneumaticsModuleType.REVPH,
-        VMap.RightSolenoidForwardChannel,
-        VMap.RightSolenoidReverseChannel
-      );
+  public ClimbersSubsystem(boolean isReal) {
+    if (isReal) {
+      m_climbIO = new ClimbersIOReal();
+    } else {
+      m_climbIO = new ClimbersIOSim();
+    }
   }
 
   //#region Control Methods
 
   /**
-   * Raises the desired climber arm
-   * @param side The side to raise
-   */
-  public void raiseArm(Side side) {
-    if (side == Side.kLeft && !m_leftLimitSwitch.get()) {
-      m_leftVictorSPX.set(VictorSPXControlMode.PercentOutput, VMap.ClimberUpSpeed);
+     * Raises the desired climber arm
+     * @param side The side to raise
+     */
+    public void raiseArm(Side side) {
+        if (side == Side.kLeft && !m_Inputs.leftLimitSwitch) {
+          m_outputs.leftMotorOutput = VMap.ClimberUpSpeed;
+        }
+
+        if (side == Side.kRight && !m_Inputs.rightLimitSwitch) {
+          m_outputs.rightMotorOutput = VMap.ClimberUpSpeed;
+        }
     }
 
-    if (side == Side.kRight && !m_rightLimitSwitch.get()) {
-      m_rightVictorSPX.set(VictorSPXControlMode.PercentOutput, VMap.ClimberUpSpeed);
-    }
-  }
+    /**
+     * Lowers the desired climber arm
+     * @param side The side to lower
+     * @param speed The speed to lower the arm at
+     */ 
 
-  /**
-   * Lowers the desired climber arm
-   * @param side The side to lower
-   * @param speed The speed to lower the arm at
-   */
-  public void lowerArm(Side side, double speed) {
-    if (side == Side.kLeft) {
-      m_leftVictorSPX.set(VictorSPXControlMode.PercentOutput, -speed);
-    }
+    public void lowerArm(Side side, double speed) {
+        if (side == Side.kLeft) {
+            m_outputs.leftMotorOutput = -speed;
+        }
 
-    if (side == Side.kRight) {
-      m_rightVictorSPX.set(VictorSPXControlMode.PercentOutput, -speed);
-    }
-  }
-
-  /**
-   * Stops the desired climber arm
-   * @param side
-   */
-  public void stopArm(Side side) {
-    if (side == Side.kLeft) {
-      m_leftVictorSPX.set(VictorSPXControlMode.PercentOutput, 0);
-      setClutch(Side.kLeft, true);
+        if (side == Side.kRight) {
+          m_outputs.rightMotorOutput = -speed;
+        }
     }
 
-    if (side == Side.kRight) {
-      m_rightVictorSPX.set(VictorSPXControlMode.PercentOutput, 0);
-      setClutch(Side.kRight, true);
-    }
-  }
+    /**
+     * Stops the desired climber arm
+     * @param side
+     */
+    public void stopArm(Side side) {
+        if (side == Side.kLeft) {
+          m_outputs.leftMotorOutput = 0;
+            setClutch(Side.kLeft, true);
+        }
 
-  /**
-   * Engages / disengages the desired clutch
-   * @param side The side to engage / disengage
-   * @param engaged Whether to engage or disengage the clutch
-   */
-  public void setClutch(Side side, boolean engaged) {
-    if (side == Side.kLeft) {
-      m_clutchSolenoidLeft.set(engaged ? Value.kForward : Value.kReverse);
+        if (side == Side.kRight) {
+          m_outputs.rightMotorOutput = 0;
+            setClutch(Side.kRight, true);
+        }
     }
 
-    if (side == Side.kRight) {
-      m_clutchSolenoidRight.set(engaged ? Value.kForward : Value.kReverse);
+    /**
+     * Engages / disengages the desired clutch
+     * @param side The side to engage / disengage
+     * @param engaged Whether to engage or disengage the clutch
+     */
+    public void setClutch(Side side, boolean engaged) {
+        if (side == Side.kLeft) {
+          m_outputs.ClutchLeft = engaged;
+
+        }
+
+        if (side == Side.kRight) {
+          m_outputs.ClutchRight = engaged;
+
+        }
     }
-  }
+  
 
   @Override
   public void periodic() {
-    // d_leftLimitEntry.setBoolean(m_leftLimitSwitch.get());
-    // d_rightLimitEntry.setBoolean(m_rightLimitSwitch.get());
+    m_Inputs = m_climbIO.getInputs();
+    m_climbIO.setOutputs(m_outputs);
+
+
     DriverDashboard.ClimberControlsActiveBox.setBoolean(m_climbControlsEnabled);
 
     // Level2 Logging
+    
     SmartDashboard.putBoolean("Climbers/ControlsEnabled", m_climbControlsEnabled);
-    SmartDashboard.putNumber("Climbers/LeftMotorOutput", m_leftVictorSPX.getMotorOutputPercent());
-    SmartDashboard.putNumber("Climbers/RightMotorOutput", m_rightVictorSPX.getMotorOutputPercent());
-    SmartDashboard.putBoolean("Climbers/LeftLimitSwitch", m_leftLimitSwitch.get());
-    SmartDashboard.putBoolean("Climbers/RightLimitSwitch", m_rightLimitSwitch.get());
+    // outputs
+    SmartDashboard.putNumber("Climbers/LeftMotorOutput", m_outputs.leftMotorOutput);
+    SmartDashboard.putNumber("Climbers/RightMotorOutput", m_outputs.rightMotorOutput);
+    //
+    // inputs
+    SmartDashboard.putBoolean("Climbers/LeftLimitSwitch", m_Inputs.leftLimitSwitch);
+    SmartDashboard.putBoolean("Climbers/RightLimitSwitch", m_Inputs.rightLimitSwitch);
   }
 
   //#endregion
@@ -197,7 +178,7 @@ public class Climbers extends SubsystemBase {
         if (m_climbControlsEnabled) {
           // Raise Right
           var raiseRightArmTriggered = raiseRightArm.getAsBoolean();
-          var rightLimitSwitchTriggered = m_rightLimitSwitch.get();
+          var rightLimitSwitchTriggered = m_Inputs.rightLimitSwitch;
           if (raiseRightArmTriggered && !rightLimitSwitchTriggered) {
             setClutch(Side.kRight, false);
             raiseArm(Side.kRight);
@@ -207,7 +188,7 @@ public class Climbers extends SubsystemBase {
 
           // Raise left
           var raiseLeftArmTriggered = raiseLeftArm.getAsBoolean();
-          var leftLimitSwitchTriggered = m_leftLimitSwitch.get();
+          var leftLimitSwitchTriggered = m_Inputs.leftLimitSwitch;
           if (raiseLeftArmTriggered && !leftLimitSwitchTriggered) {
             setClutch(Side.kLeft, false);
             raiseArm(Side.kLeft);
@@ -245,7 +226,7 @@ public class Climbers extends SubsystemBase {
             raiseArm(Side.kRight);
           })
       )
-      .andThen(new WaitUntilCommand(() -> m_leftLimitSwitch.get() || m_rightLimitSwitch.get()).withTimeout(2))
+      .andThen(new WaitUntilCommand(() -> m_Inputs.leftLimitSwitch || m_Inputs.rightLimitSwitch).withTimeout(2))
       .andThen(() -> {
         stopArm(Side.kLeft);
         stopArm(Side.kRight);
